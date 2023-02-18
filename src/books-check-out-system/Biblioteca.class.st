@@ -9,7 +9,6 @@ Class {
 		'nombreRepresentante',
 		'duracionDiasPrestamo',
 		'colLibros',
-		'colPrestamosAntiguos',
 		'colPrestamosActuales'
 	],
 	#category : #'books-check-out-system'
@@ -51,6 +50,11 @@ Biblioteca >> getId [
 	^ id
 ]
 
+{ #category : #aplicacion }
+Biblioteca >> getLibros [
+^ colLibros
+]
+
 { #category : #observadores }
 Biblioteca >> getNombre [
 
@@ -61,6 +65,11 @@ Biblioteca >> getNombre [
 Biblioteca >> getNombreRepresentante [
 
 ^ nombreRepresentante 
+]
+
+{ #category : #observadores }
+Biblioteca >> getPrestamos [
+^ colPrestamosActuales
 ]
 
 { #category : #observadores }
@@ -77,7 +86,6 @@ Biblioteca >> iniciarId: unaId direccion: unaDir nombre: unNom telefono: unTel n
 	telefono := unTel.
 	nombreRepresentante := unNomRep.
 	duracionDiasPrestamo := unosDias.
-	colLibros := OrderedCollection.
-	colPrestamosAntiguos := OrderedCollection.
-	colPrestamosActuales := OrderedCollection
+	colLibros := OrderedCollection new.
+	colPrestamosActuales := OrderedCollection new
 ]

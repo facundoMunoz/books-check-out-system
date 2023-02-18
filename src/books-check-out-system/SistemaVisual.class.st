@@ -1,3 +1,13 @@
+"
+Morph encargado de administrar toda la parte visual del sistema de bibliotecas, siendo ésta la clase que se llama para iniciarlo.
+
+##Ejemplo de uso:
+```
+| sistemaBiblioteca |
+sistemaBiblioteca := SistemaVisual new.
+sistemaVisual openInWorld
+```
+"
 Class {
 	#name : #SistemaVisual,
 	#superclass : #BorderedMorph,
@@ -14,7 +24,7 @@ SistemaVisual >> crearFormulario: unLabel posicion: unaPosicion [
 	"Retorna un formulario de formato genérico dibujando el label"
 
 	| formulario label |
-	formulario := RubTextFieldMorph new
+	formulario := Formulario new
 		              textFont:
 			              (LogicalFont
 				               familyName: 'Source Sans Pro'
@@ -22,6 +32,7 @@ SistemaVisual >> crearFormulario: unLabel posicion: unaPosicion [
 		              backgroundColor: colorPrincipal;
 		              extent: 250 @ 0;
 		              center: unaPosicion.
+	formulario handlesMouseDown: [  ].
 	"Agregamos el label"
 	label := StringMorph new.
 	label
@@ -33,6 +44,60 @@ SistemaVisual >> crearFormulario: unLabel posicion: unaPosicion [
 	self addMorph: label.
 	"Retornamos el formulario para acceder al contenido luego"
 	^ formulario
+]
+
+{ #category : #aplicacion }
+SistemaVisual >> crearLista: unaLista bloqueClave: unBloqueClave bloqueAccion: unBloqueAccion [
+
+	| tamanioLista scroll scrollContents elementoActual point |
+	"Obtenemos el tamaño"
+	tamanioLista := unaLista size.
+	"Creamos el panel de scroll"
+	scroll := GeneralScrollPaneMorph new.
+	scroll
+		borderWidth: 1;
+		borderColor: colorPrincipal;
+		color: Color transparent;
+		extent: 598 @ 400;
+		center: self center + (0 @ 50).
+	self addMorph: scroll.
+	"Creamos el contenido del panel"
+	scrollContents := BorderedMorph new.
+	scrollContents
+		borderWidth: 0;
+		color: Color transparent;
+		extent: 500 @ (tamanioLista * 100 + 50).
+	"Hacemos que el scroll siga al contenido"
+	scroll scroller addMorph: scrollContents.
+	scroll scrollTarget: scrollContents.
+	"Listamos los elementos dentro del scroll"
+	1 to: tamanioLista do: [ :posVertical | 
+		elementoActual := unaLista at: posVertical.
+		point := scrollContents center x + 50 @ (posVertical * 100 - 50).
+		scrollContents addMorph: (BotonAccion
+				 crear: (unBloqueClave value: elementoActual)
+				 color: colorPrincipal
+				 posicion: point
+				 yFuncion: [ unBloqueAccion value: elementoActual ]) ]
+]
+
+{ #category : #aplicacion }
+SistemaVisual >> crearSelector: listaOpciones posicion: unaPosicion [
+
+	| selector fuente |
+	fuente := LogicalFont familyName: 'Source Sans Pro' pointSize: 13.
+	selector := DropListMorph
+		            on: listaOpciones
+		            list: #value
+		            selected: nil
+		            changeSelected: nil.
+	selector
+		extent: 250 @ 30;
+		selectionColor: colorPrincipal;
+		font: fuente;
+		listFont: fuente;
+		center: unaPosicion.
+	^ selector
 ]
 
 { #category : #aplicacion }
@@ -75,9 +140,10 @@ SistemaVisual >> initialize [
 	sistema := Sistema new.
 	sistema cargaInicialPrueba.
 	"Estilo de la ventana"
+	colorPrincipal := Color r: 71 / 255 g: 90 / 255 b: 105 / 255.
+	self borderColor: colorPrincipal.
 	self color: Color white.
 	self bounds: (self position extent: 600 @ 600).
-	colorPrincipal := Color r: 71 / 255 g: 90 / 255 b: 105 / 255.
 	"Comenzamos en el menú principal"
 	self menuPrincipal
 ]
@@ -140,6 +206,29 @@ SistemaVisual >> menuAgregarBiblioteca [
 						 self
 							 ventanaNotificacion: 'ID para biblioteca está en uso'
 							 redirige: [ self menuAgregarBiblioteca ] ] ])
+]
+
+{ #category : #aplicacion }
+SistemaVisual >> menuAgregarBibliotecaFav: unUsuario [
+
+	| bibliotecas selector |
+	"Obtenemos las bibliotecas que aún no están como favoritas"
+	bibliotecas := sistema getBibliotecas.
+	self nuevaVentana: [ self menuOpcionesUsuario: unUsuario ] nivel: 5.
+	"Título"
+	self crearTitulo: 'Agregar biblioteca favorita'.
+	"Selector bibliotecas"
+	selector := self
+		            crearSelector:
+		            (bibliotecas collect: [ :biblioteca | 
+			             biblioteca getNombre ])
+		            posicion: self center.
+	self addMorph: selector.
+	self addMorph: (BotonAccion
+			 crear: 'Agregar'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 100)
+			 yFuncion: [  ])
 ]
 
 { #category : #aplicacion }
@@ -213,47 +302,24 @@ SistemaVisual >> menuBibliotecas [
 { #category : #aplicacion }
 SistemaVisual >> menuBuscarBiblioteca [
 
-	| formularioId biblioteca |
 	self nuevaVentana: [ self menuBibliotecas ] nivel: 3.
 	"Título"
 	self crearTitulo: 'Buscar biblioteca'.
-	"Formulario de la id"
-	formularioId := self
-		                crearFormulario: 'ID'
-		                posicion: self center - (0 @ 25).
-	self addMorph: formularioId.
-	"Botón buscar"
-	self addMorph: (BotonAccion
-			 crear: 'Buscar'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 100)
-			 yFuncion: [ 
-				 biblioteca := sistema getBiblioteca:
-					               formularioId getText asString asInteger.
-				 biblioteca ifNotNil: [ self menuInfoBiblioteca: biblioteca ] ])
+	"Mostramos la lista de bibliotecas"
+	self crearLista: sistema getBibliotecas bloqueClave: [ :biblioteca | biblioteca getNombre ] bloqueAccion: [ :biblioteca | self menuInfoBiblioteca: biblioteca ]
 ]
 
 { #category : #aplicacion }
 SistemaVisual >> menuBuscarUsuario [
 
-	| formularioDni usuario |
 	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
 	"Título"
 	self crearTitulo: 'Buscar usuario'.
-	"Formulario del dni"
-	formularioDni := self
-		                 crearFormulario: 'DNI'
-		                 posicion: self center - (0 @ 25).
-	self addMorph: formularioDni.
-	"Botón buscar"
-	self addMorph: (BotonAccion
-			 crear: 'Buscar'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 100)
-			 yFuncion: [ 
-				 usuario := sistema getUsuario:
-					            formularioDni getText asString asInteger.
-				 usuario ifNotNil: [ self menuInfoUsuario: usuario ] ])
+	"Mostramos la lista de usuarios"
+	self
+		crearLista: sistema getUsuarios
+		bloqueClave: [ :usuario | usuario getNombre , ' ' , usuario getApellido ]
+		bloqueAccion: [ :usuario | self menuInfoUsuario: usuario ]
 ]
 
 { #category : #aplicacion }
@@ -265,21 +331,21 @@ SistemaVisual >> menuInfoBiblioteca: unaBiblioteca [
 	"Datos"
 	self
 		crearTexto: 'Id: ' , unaBiblioteca getId asString
-		posicion: self center - (0 @ 125).
+		posicion: self center - (0 @ 100).
 	self
 		crearTexto: 'Dirección: ' , unaBiblioteca getDireccion
-		posicion: self center - (0 @ 75).
+		posicion: self center - (0 @ 50).
 	self
 		crearTexto: 'Teléfono: ' , unaBiblioteca getTelefono
-		posicion: self center - (0 @ 25).
+		posicion: self center.
 	self
 		crearTexto: 'Representante: ' , unaBiblioteca getNombreRepresentante
-		posicion: self center + (0 @ 25).
+		posicion: self center + (0 @ 50).
 	self
 		crearTexto:
 		'Duración préstamo: '
 		, unaBiblioteca getDuracionDiasPrestamo asString
-		posicion: self center + (0 @ 75).
+		posicion: self center + (0 @ 100).
 	"Botón más opciones"
 	self addMorph: (BotonAccion
 			 crear: 'Más opciones'
@@ -293,7 +359,7 @@ SistemaVisual >> menuInfoUsuario: unUsuario [
 
 	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
 	"Título"
-	self crearTitulo: unUsuario getNombre, ' ', unUsuario getApellido.
+	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Datos"
 	self
 		crearTexto: 'DNI: ' , unUsuario getDni asString
@@ -306,7 +372,7 @@ SistemaVisual >> menuInfoUsuario: unUsuario [
 			 crear: 'Más opciones'
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 200)
-			 yFuncion: [  ])
+			 yFuncion: [ self menuOpcionesUsuario: unUsuario  ])
 ]
 
 { #category : #aplicacion }
@@ -323,22 +389,72 @@ SistemaVisual >> menuOpcionesBiblioteca: unaBiblioteca [
 			 yFuncion: [  ]).
 	"Botón quitar material"
 	self addMorph: (BotonAccion
-			 crear: 'Quitar libro'
+			 crear: 'Ver libros'
 			 color: colorPrincipal
 			 posicion: self center
-			 yFuncion: [  ]).
-	"Botón prestamos activos"
+			 yFuncion: [ 
+				 self
+					 nuevaVentana: [ self menuOpcionesBiblioteca: unaBiblioteca ]
+					 nivel: 5.
+				 self crearTitulo:
+					 'Libros en "' , unaBiblioteca getNombre , '"'.
+				 self
+					 crearLista: unaBiblioteca getLibros
+					 bloqueClave: [ :libro | libro getNombre ]
+					 bloqueAccion: [  ] ]).
+	"Botón préstamos activos"
 	self addMorph: (BotonAccion
 			 crear: 'Préstamos activos'
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 100)
-			 yFuncion: [  ]).
+			 yFuncion: [ 
+				 self
+					 nuevaVentana: [ self menuOpcionesBiblioteca: unaBiblioteca ]
+					 nivel: 5.
+				 self crearTitulo:
+					 'Préstamos activos en "' , unaBiblioteca getNombre , '"'.
+				 self
+					 crearLista: unaBiblioteca getPrestamos
+					 bloqueClave: [ :prestamo | prestamo getUsuario getNombre ]
+					 bloqueAccion: [  ] ]).
 	"Botón ver datos biblioteca"
 	self addMorph: (BotonAccion
 			 crear: 'Info biblioteca'
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 200)
 			 yFuncion: [ self menuInfoBiblioteca: unaBiblioteca ])
+]
+
+{ #category : #aplicacion }
+SistemaVisual >> menuOpcionesUsuario: unUsuario [
+
+	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
+	"Título"
+	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
+	"Botón cambiar plan"
+	self addMorph: (BotonAccion
+			 crear: 'Cambiar plan'
+			 color: colorPrincipal
+			 posicion: self center - (0 @ 100)
+			 yFuncion: [  ]).
+	"Botón añadir biblioteca favorita"
+	self addMorph: (BotonAccion
+			 crear: 'Agregar biblioteca fav'
+			 color: colorPrincipal
+			 posicion: self center
+			 yFuncion: [ self menuAgregarBibliotecaFav: unUsuario ]).
+	"Botón préstamos activos"
+	self addMorph: (BotonAccion
+			 crear: 'Préstamos activos'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 100)
+			 yFuncion: [  ]).
+	"Botón ver datos usuario"
+	self addMorph: (BotonAccion
+			 crear: 'Info usuario'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 200)
+			 yFuncion: [ self menuInfoUsuario: unUsuario ])
 ]
 
 { #category : #aplicacion }
@@ -390,15 +506,15 @@ SistemaVisual >> nuevaVentana: ventanaAnterior nivel: unNivel [
 	self removeAllMorphs.
 	"Botón atras"
 	self addMorph: (BotonAccion
-			 crearAuxiliar: 'Atras'
+			 crearAuxiliar: 'Volver'
 			 color: colorPrincipal
-			 posicion: self topRight - (100 @ 0)
+			 posicion: self position
 			 yFuncion: ventanaAnterior).
 	"Botón salir"
 	self addMorph: (BotonAccion
 			 crearAuxiliar: 'Salir'
 			 color: colorPrincipal
-			 posicion: self position
+			 posicion: self topRight - (100 @ 0)
 			 yFuncion: [ self delete ]).
 	"Profundidad de la ventana representada por cantidad de puntos"
 	nivel := ''.
@@ -411,79 +527,35 @@ SistemaVisual >> nuevaVentana: ventanaAnterior nivel: unNivel [
 			 center: self topCenter + (0 @ 25))
 ]
 
-{ #category : #testing }
-SistemaVisual >> plantilla [
+{ #category : #aplicacion }
+SistemaVisual >> ventanaConfirmacion: unaPregunta bloqueConfirma: unBloquePositivo redirige: unMenu [
 
-	| titulo formLabel form |
-	"Crear título"
-	titulo := StringMorph new.
-	titulo
-		contents: 'ADMINISTRADOR';
+	| pregunta |
+	"Quitamos morphs previos"
+	self removeAllMorphs.
+	"Mensaje"
+	pregunta := StringMorph new.
+	pregunta
+		contents: unaPregunta;
 		font: (LogicalFont familyName: 'Source Sans Pro' pointSize: 18);
 		emphasis: TextEmphasis bold emphasisCode;
 		color: colorPrincipal;
-		center: self topCenter + (0 @ 50).
-
-	"Crear formulario"
-	form := RubTextFieldMorph new.
-	self borderColor: Color black.
-	form
-		textFont: (LogicalFont familyName: 'Source Sans Pro' pointSize: 14);
-		backgroundColor: colorPrincipal;
-		extent: 300 @ 0;
-		center: self center.
-	"Creamos el label"
-	formLabel := StringMorph new.
-	formLabel
-		contents: 'Nombre:';
-		font: (LogicalFont familyName: 'Source Sans Pro' pointSize: 14);
-		emphasis: TextEmphasis bold emphasisCode;
-		color: colorPrincipal;
-		position: form topLeft - formLabel bottomLeft.
-	self addMorph: formLabel.
-
-	"Dibujamos en la ventana"
-	self addMorph: titulo.
+		center: self center - (0 @ 100).
+	self addMorph: pregunta.
+	"Botón confirmar, ejecuta el bloque positivo y redirige al menú"
 	self addMorph: (BotonAccion
-			 crear: 'CREAR'
+			 crear: 'Confirmar'
 			 color: colorPrincipal
-			 posicion: self center + self bottomCenter / 2
-			 yFuncion: [ "UIManager default message: 'Nombre: ' , form getText asString"
-			  ]).
-	self addMorph: form
-]
-
-{ #category : #testing }
-SistemaVisual >> testMorph [
-
-	| titulo visible botonVisible |
-	"El título comienza visible"
-	visible := true.
-	"Crear título"
-	titulo := StringMorph new
-		          contents: 'ADMINISTRADOR';
-		          font:
-			          (LogicalFont familyName: 'Source Sans Pro' pointSize: 18);
-		          emphasis: TextEmphasis bold emphasisCode;
-		          color: colorPrincipal;
-		          center: self topCenter + (0 @ 50).
-	"Creamos botón"
-	botonVisible := BotonAccion new.
-	botonVisible := BotonAccion
-		                crear: 'O'
-		                color: colorPrincipal
-		                posicion: self center + self bottomCenter / 2
-		                yFuncion: [ 
-			                visible
-				                ifTrue: [ 
-					                titulo center: self topCenter - (0 @ 50).
-					                visible := false ]
-				                ifFalse: [ 
-					                titulo center: self topCenter + (0 @ 50).
-					                visible := true ] ].
-	"Dibujamos en la ventana"
-	self addMorph: titulo.
-	self addMorph: botonVisible
+			 posicion: self center + (0 @ 100)
+			 yFuncion: [ 
+				 unBloquePositivo value.
+				 unMenu value ]).
+	"Botón cancelar, solo redirige"
+	self addMorph: (BotonAccion
+			 crear: 'Cancelar'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 150)
+			 yFuncion: unMenu)
 ]
 
 { #category : #aplicacion }

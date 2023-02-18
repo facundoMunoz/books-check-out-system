@@ -66,6 +66,11 @@ Sistema >> getBiblioteca: unaId [
 	^ biblioteca
 ]
 
+{ #category : #observadores }
+Sistema >> getBibliotecas [
+^ colBibliotecas
+]
+
 { #category : #aplicacion }
 Sistema >> getUsuario: unDni [
 
@@ -77,6 +82,11 @@ Sistema >> getUsuario: unDni [
 		            usuarioActual correspondeDni: unDni ].
 	posicion > 0 ifTrue: [ usuario := colUsuarios at: posicion ].
 	^ usuario
+]
+
+{ #category : #observadores }
+Sistema >> getUsuarios [
+^ colUsuarios
 ]
 
 { #category : #initialization }

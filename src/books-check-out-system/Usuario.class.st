@@ -38,6 +38,11 @@ Usuario >> getApellido [
 ]
 
 { #category : #observadores }
+Usuario >> getBibliotecasFavoritas [
+	^ colBibliotecasFav
+]
+
+{ #category : #observadores }
 Usuario >> getDni [
 
 ^ dni
@@ -54,5 +59,6 @@ Usuario >> iniciar: unDni nombre: unNombre apellido: unApellido contrasenia: una
 	dni := unDni.
 	nombre := unNombre.
 	apellido := unApellido.
-	contrasenia := unaContrasenia
+	contrasenia := unaContrasenia.
+	colBibliotecasFav := OrderedCollection new
 ]

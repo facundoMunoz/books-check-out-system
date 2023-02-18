@@ -1,3 +1,6 @@
+"
+Morph etiquetado rectangular que ejecuta un bloque cuando se le da click.
+"
 Class {
 	#name : #BotonAccion,
 	#superclass : #SimpleButtonMorph,
@@ -40,7 +43,7 @@ BotonAccion >> iniciar: unNombre color: unColor posicion: unasCoordenadas yFunci
 
 	self initialize.
 
-	"Utilizamos nuestro propio label para poder cambiar el estilo"
+	"Utilizamos nuestro propio label para poder cambiar el estilo del texto"
 	self label: ''.
 	label := StringMorph new.
 	label
@@ -67,7 +70,7 @@ BotonAccion >> iniciarAuxiliar: unNombre color: unColor posicion: unasCoordenada
 
 	self initialize.
 
-	"Utilizamos nuestro propio label para poder cambiar el estilo"
+	"Utilizamos nuestro propio label para poder cambiar el estilo del texto"
 	self label: ''.
 	label := StringMorph new.
 	label
@@ -80,7 +83,7 @@ BotonAccion >> iniciarAuxiliar: unNombre color: unColor posicion: unasCoordenada
 		addMorph: label;
 		borderWidth: 0;
 		color: unColor;
-		extent: 100 @ 25;
+		extent: 100 @ 40;
 		position: unasCoordenadas.
 
 	"Definimos la acción del botón"
