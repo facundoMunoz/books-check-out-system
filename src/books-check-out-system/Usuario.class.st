@@ -25,6 +25,26 @@ Usuario class >> crearDni: unDni nombre: unNombre apellido: unApellido contrasen
 ]
 
 { #category : #aplicacion }
+Usuario >> agregarBibliotecaFav: unaBiblioteca [
+	colBibliotecasFav add: unaBiblioteca
+]
+
+{ #category : #converting }
+Usuario >> asUsuarioPlusTarjeta: nroTarjeta codigoSeguridad: unCodSeguridad [
+
+	| nuevoPlus |
+	nuevoPlus := UsuarioPlus
+		             crearDni: dni
+		             nombre: nombre
+		             apellido: apellido
+		             contrasenia: contrasenia
+		             nroTarjeta: nroTarjeta
+		             codSeguridad: unCodSeguridad
+		             colBibliotecasFav: colBibliotecasFav.
+		^nuevoPlus 
+]
+
+{ #category : #aplicacion }
 Usuario >> correspondeDni: unDni [
 
 	"Verifica si el dni corresponde con el usuario"
@@ -51,6 +71,11 @@ Usuario >> getDni [
 { #category : #observadores }
 Usuario >> getNombre [
 ^ nombre
+]
+
+{ #category : #observadores }
+Usuario >> getTipo [
+^ 'Regular'
 ]
 
 { #category : #initialization }

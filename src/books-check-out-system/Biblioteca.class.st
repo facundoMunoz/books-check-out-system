@@ -29,6 +29,22 @@ Biblioteca class >> crearId: unaId direccion: unaDir nombre: unNom telefono: unT
 	^ bibliotecaNueva
 ]
 
+{ #category : #adding }
+Biblioteca >> agregarLibro: unLibro [
+
+	"Verifica que no repita id, devuelve false si es el caso"
+
+	| agregado |
+	agregado := false.
+	colLibros 
+		detect: [ :libro | 
+		unLibro correspondeId: libro getId ]
+		ifNone: [ 
+			agregado := true.
+			colLibros add: unLibro ].
+	^ agregado
+]
+
 { #category : #aplicacion }
 Biblioteca >> correspondeId: unaId [
 	"Verifica si la id corresponde con la biblioteca"
@@ -50,7 +66,7 @@ Biblioteca >> getId [
 	^ id
 ]
 
-{ #category : #aplicacion }
+{ #category : #observadores }
 Biblioteca >> getLibros [
 ^ colLibros
 ]
@@ -88,4 +104,14 @@ Biblioteca >> iniciarId: unaId direccion: unaDir nombre: unNom telefono: unTel n
 	duracionDiasPrestamo := unosDias.
 	colLibros := OrderedCollection new.
 	colPrestamosActuales := OrderedCollection new
+]
+
+{ #category : #removing }
+Biblioteca >> quitarLibro: unLibro [
+| eliminado posicion |
+eliminado := false.
+unLibro getDisponible ifTrue: [ "Si no está en un prestamo y pertenece a la colección lo borramos"
+	posicion :=colLibros indexOf: unLibro.
+	posicion = 0 ifFalse: [ colLibros removeAt: posicion. eliminado := true ] ].
+^ eliminado
 ]
