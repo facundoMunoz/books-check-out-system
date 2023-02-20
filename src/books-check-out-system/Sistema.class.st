@@ -98,3 +98,18 @@ super initialize.
 	colUsuarios := OrderedCollection new.
 	colAutores := OrderedCollection new
 ]
+
+{ #category : #aplicacion }
+Sistema >> quitarUsuario: unUsuario [
+
+	"Buscamos dni, elimina si es el caso"
+
+	| quitado posicion |
+	quitado := false.
+	 posicion := colUsuarios
+		indexOf: [ :usuario | unUsuario correspondeDni: usuario getDni ].
+		(posicion = 0) ifFalse: [ 
+			colUsuarios removeAt: posicion.
+			quitado := true ].
+	^ quitado
+]

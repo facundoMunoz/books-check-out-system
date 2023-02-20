@@ -28,12 +28,29 @@ UsuarioPlus class >> crearDni: unDni nombre: unNombre apellido: unApellido contr
 UsuarioPlus >> asUsuarioRegular [
 
 	| nuevoRegular |
-	nuevoRegular := Usuario 
+	nuevoRegular := Usuario
 		                crearDni: dni
 		                nombre: nombre
 		                apellido: apellido
 		                contrasenia: contrasenia.
+		nuevoRegular 
+		                setColBibliotecasFav: self getBibliotecasFavoritas.
 	^ nuevoRegular
+]
+
+{ #category : #observadores }
+UsuarioPlus >> getCodSeguridad [
+^ codigoSeguridad 
+]
+
+{ #category : #observadores }
+UsuarioPlus >> getFechaPago [
+^ fechaPago
+]
+
+{ #category : #observadores }
+UsuarioPlus >> getNroTarjeta [
+^ nroTarjeta 
 ]
 
 { #category : #observadores }

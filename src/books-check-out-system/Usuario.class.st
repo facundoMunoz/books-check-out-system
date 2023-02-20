@@ -87,3 +87,8 @@ Usuario >> iniciar: unDni nombre: unNombre apellido: unApellido contrasenia: una
 	contrasenia := unaContrasenia.
 	colBibliotecasFav := OrderedCollection new
 ]
+
+{ #category : #modificadores }
+Usuario >> setColBibliotecasFav: unaColFav [
+colBibliotecasFav := unaColFav 
+]

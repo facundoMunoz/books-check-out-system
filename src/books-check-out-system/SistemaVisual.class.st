@@ -85,7 +85,8 @@ SistemaVisual >> crearLista: unaLista bloqueClave: unBloqueClave bloqueAccion: u
 SistemaVisual >> crearSelector: unLabel lista: listaOpciones posicion: unaPosicion [
 
 	| selector fuente label |
-	fuente := LogicalFont familyName: 'Source Sans Pro' pointSize: 13.
+	fuente := (LogicalFont familyName: 'Source Sans Pro' pointSize: 13) 
+		          emphasis: TextEmphasis bold emphasisCode.
 	selector := DropListMorph
 		            on: listaOpciones
 		            list: #value
@@ -409,6 +410,56 @@ SistemaVisual >> menuBuscarUsuario [
 ]
 
 { #category : #aplicacion }
+SistemaVisual >> menuCambioPlanUsuario: unUsuario [
+
+	self nuevaVentana: [ self menuOpcionesUsuario: unUsuario ] nivel: 5.
+	"Según el tipo de usuario debemos hacer un cambio o el otro"
+	unUsuario getTipo = 'Plus'
+		ifTrue: [ 
+			self
+				ventanaConfirmacion: '¿Desea dejar de ser Plus?'
+				bloqueConfirma: [ 
+					| nuevoRegular |
+					"Quitamos el plus"
+					sistema quitarUsuario: unUsuario.
+					"Agregamos el regular"
+					nuevoRegular := unUsuario asUsuarioRegular.
+					sistema agregarUsuario: nuevoRegular.
+					self menuInfoUsuario: nuevoRegular ]
+				redirige: [ self menuOpcionesUsuario: unUsuario ] ]
+		ifFalse: [ 
+			| formNroTarjeta formCodSeguridad |
+			self crearTitulo: 'Cambio a Plus'.
+			formNroTarjeta := self
+				                  crearFormulario: 'Número de tarjeta:'
+				                  posicion: self center - (0 @ 50).
+			self addMorph: formNroTarjeta.
+			formCodSeguridad := self
+				                    crearFormulario: 'Código de seguridad:'
+				                    posicion: self center + (0 @ 50).
+			self addMorph: formCodSeguridad.
+			self addMorph: (BotonAccion
+					 crear: 'Cambiar a Plus'
+					 color: colorPrincipal
+					 posicion: self center + (0 @ 150)
+					 yFuncion: [ 
+						 | nuevoPlus |
+						 "Quitamos el regular"
+						 sistema quitarUsuario: unUsuario.
+						 "Agregamos el plus"
+						 nuevoPlus := unUsuario
+							              asUsuarioPlusTarjeta:
+							              formNroTarjeta getText asString asInteger
+							              codigoSeguridad:
+							              formCodSeguridad getText asString asInteger.
+						 sistema agregarUsuario: nuevoPlus.
+						 self
+							 ventanaNotificacion:
+							 '¡' , nuevoPlus getNombre , ' ahora es Plus!'
+							 redirige: [ self menuInfoUsuario: nuevoPlus ] ]) ]
+]
+
+{ #category : #aplicacion }
 SistemaVisual >> menuInfoBiblioteca: unaBiblioteca [
 
 	self nuevaVentana: [ self menuBuscarBiblioteca ] nivel: 4.
@@ -496,11 +547,25 @@ SistemaVisual >> menuInfoUsuario: unUsuario [
 	"Datos"
 	self
 		crearTexto: 'DNI: ' , unUsuario getDni asString
-		posicion: self center - (0 @ 50).
-	self crearTexto: 'Contraseña: ' , '?' posicion: self center.
+		posicion: self center - (0 @ 125).
+	self
+		crearTexto: 'Contraseña: ' , '?'
+		posicion: self center - (0 @ 75).
 	self
 		crearTexto: 'Tipo: ' , unUsuario getTipo
-		posicion: self center + (0 @ 50).
+		posicion: self center - (0 @ 25).
+	unUsuario getTipo = 'Plus' ifTrue: [ 
+		self
+			crearTexto: 'Fecha pago: ' , unUsuario getFechaPago asString
+			posicion: self center + (0 @ 25).
+		self
+			crearTexto:
+			'Número de tarjeta: ' , unUsuario getNroTarjeta asString
+			posicion: self center + (0 @ 75).
+		self
+			crearTexto:
+			'Código de seguridad: ' , unUsuario getCodSeguridad asString
+			posicion: self center + (0 @ 125) ].
 	"Botón más opciones"
 	self addMorph: (BotonAccion
 			 crear: 'Opciones'
@@ -577,7 +642,7 @@ SistemaVisual >> menuOpcionesUsuario: unUsuario [
 			 crear: 'Cambiar plan'
 			 color: colorPrincipal
 			 posicion: self center - (0 @ 100)
-			 yFuncion: [  ]).
+			 yFuncion: [ self menuCambioPlanUsuario: unUsuario  ]).
 	"Botón añadir biblioteca favorita"
 	self addMorph: (BotonAccion
 			 crear: 'Agregar biblioteca fav'
