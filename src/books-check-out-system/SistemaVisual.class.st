@@ -405,8 +405,9 @@ SistemaVisual >> menuBuscarUsuario [
 	"Mostramos la lista de usuarios"
 	self
 		crearLista: sistema getUsuarios
-		bloqueClave: [ :usuario | usuario getNombre , ' ' , usuario getApellido ]
-		bloqueAccion: [ :usuario | self menuInfoUsuario: usuario ]
+		bloqueClave: [ :usuario | 
+		usuario getNombre , ' ' , usuario getApellido ]
+		bloqueAccion: [ :usuario | self menuConfirmarUsuario: usuario ]
 ]
 
 { #category : #aplicacion }
@@ -457,6 +458,37 @@ SistemaVisual >> menuCambioPlanUsuario: unUsuario [
 							 ventanaNotificacion:
 							 '¡' , nuevoPlus getNombre , ' ahora es Plus!'
 							 redirige: [ self menuInfoUsuario: nuevoPlus ] ]) ]
+]
+
+{ #category : #aplicacion }
+SistemaVisual >> menuConfirmarUsuario: unUsuario [
+
+	| formContrasenia |
+	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
+	"Título"
+	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
+	"Pedimos la contraseña"
+	formContrasenia := self
+		                   crearFormulario: 'Ingrese la contraseña'
+		                   posicion: self center.
+	self addMorph: formContrasenia.
+	"Botón ingresar"
+	self addMorph: (BotonAccion
+			 crear: 'Ingresar'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 100)
+			 yFuncion: [ 
+				 formContrasenia getText asString = unUsuario getContrasenia
+					 ifTrue: [ self menuInfoUsuario: unUsuario ]
+					 ifFalse: [ 
+						 self
+							 ventanaNotificacion: 'Contraseña incorrecta'
+							 redirige: [ self menuConfirmarUsuario: unUsuario ] ] ]).
+	self addMorph: (BotonAccion
+			 crear: 'DEBUG: entrar directo'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 200)
+			 yFuncion: [ self menuInfoUsuario: unUsuario ])
 ]
 
 { #category : #aplicacion }
@@ -549,7 +581,7 @@ SistemaVisual >> menuInfoUsuario: unUsuario [
 		crearTexto: 'DNI: ' , unUsuario getDni asString
 		posicion: self center - (0 @ 125).
 	self
-		crearTexto: 'Contraseña: ' , '?'
+		crearTexto: 'Contraseña: ' , unUsuario getContrasenia
 		posicion: self center - (0 @ 75).
 	self
 		crearTexto: 'Tipo: ' , unUsuario getTipo

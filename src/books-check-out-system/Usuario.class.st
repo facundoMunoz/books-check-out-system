@@ -63,6 +63,11 @@ Usuario >> getBibliotecasFavoritas [
 ]
 
 { #category : #observadores }
+Usuario >> getContrasenia [
+^ contrasenia 
+]
+
+{ #category : #observadores }
 Usuario >> getDni [
 
 ^ dni
