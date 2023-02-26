@@ -49,7 +49,7 @@ BotonAccion >> iniciar: unNombre color: unColor posicion: unasCoordenadas yFunci
 	label
 		contents: unNombre;
 		font: (LogicalFont familyName: 'Source Sans Pro' pointSize: 15);
-		emphasis: TextEmphasis bold emphasisCode.
+		emphasis: TextEmphasis bold emphasisCode; color: Color white.
 
 	"Agregamos el texto y definimos el resto del estilo del botón"
 	self
@@ -76,7 +76,8 @@ BotonAccion >> iniciarAuxiliar: unNombre color: unColor posicion: unasCoordenada
 	label
 		contents: unNombre;
 		font: (LogicalFont familyName: 'Source Sans Pro' pointSize: 13);
-		emphasis: TextEmphasis bold emphasisCode.
+		emphasis: TextEmphasis bold emphasisCode;
+		color: Color white.
 
 	"Agregamos el texto y definimos el resto del estilo del botón"
 	self

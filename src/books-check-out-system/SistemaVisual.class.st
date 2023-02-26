@@ -99,8 +99,7 @@ SistemaVisual >> crearSelector: unLabel lista: listaOpciones posicion: unaPosici
 		listFont: fuente;
 		center: unaPosicion;
 		setColor: colorPrincipal.
-		(listaOpciones isEmpty) ifFalse: [ selector 
-		listSelectionIndex: 1 ].
+	listaOpciones isEmpty ifFalse: [ selector listSelectionIndex: 1 ].
 	"Agregamos el label"
 	label := StringMorph new.
 	label
@@ -927,7 +926,22 @@ SistemaVisual >> nuevaVentana: ventanaAnterior nivel: unNivel [
 { #category : #'as yet unclassified' }
 SistemaVisual >> prueba [
 
-	self addMorph: ControlButtonMorph new
+	| lista |
+	lista := PluggableListMorphColored
+		         on:
+			         #( 'hola' 'hola' 'hola' 'hola' 'hola' 'hola' 'hola' 'hola'
+			            'hola' 'hola' )
+		         list: #value
+		         selected: nil
+		         changeSelected: nil.
+	self removeAllMorphs.
+	lista center: self center.
+	self addMorph: lista.
+	self addMorph: (BotonAccion
+			 crear: 'Reiniciar'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 100)
+			 yFuncion: [ self prueba ])
 ]
 
 { #category : #aplicacion }

@@ -1,6 +1,9 @@
 Class {
 	#name : #DropListMorphColored,
 	#superclass : #DropListMorph,
+	#instVars : [
+		'backgroundColor'
+	],
 	#category : #'books-check-out-system'
 }
 
@@ -12,6 +15,14 @@ DropListMorphColored >> layoutInsetToUse [
 	^ 0
 ]
 
+{ #category : #private }
+DropListMorphColored >> listMorphClass [
+
+	"Answer the class for a new list morph"
+
+	^ PluggableListMorphColored 
+]
+
 { #category : #'instance creation' }
 DropListMorphColored >> newContentMorph [
 
@@ -20,12 +31,11 @@ DropListMorphColored >> newContentMorph [
 	| pt |
 	pt := RubPluggableTextFieldMorph new
 		      alwaysAccept: true;
-		      acceptOnCR: true;
 		      getEnabledSelector: nil;
 		      font: self theme textFont;
 		      cornerStyle: (self theme textEntryCornerStyleIn: self);
 		      hResizing: #spaceFill;
-		lock;
+		      lock;
 		      setBalloonText: nil.
 	^ pt
 ]
@@ -33,6 +43,22 @@ DropListMorphColored >> newContentMorph [
 { #category : #initialization }
 DropListMorphColored >> setColor: unColor [
 
-	self color: unColor.
-	contentMorph color: unColor
+	backgroundColor := unColor.
+	contentMorph color: unColor.
+	contentMorph textColor: Color white
+]
+
+{ #category : #updating }
+DropListMorphColored >> updateContentColor: paneColor [
+
+	"Change the content text color."
+
+	self contentMorph textColor: Color white
+]
+
+{ #category : #private }
+DropListMorphColored >> updateContentMorphWith: aString [
+
+	self contentMorph setTextWith: aString asString.
+	self contentMorph textColor: Color white
 ]

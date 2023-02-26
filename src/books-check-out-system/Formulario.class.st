@@ -1,5 +1,5 @@
 "
-Morph de área de texto que evita que el cursor quede como 'text pointer' luego de dar click en el área.
+Morph de área de texto que evita que el cursor quede como 'text pointer' luego de dar click en el área de texto.
 "
 Class {
 	#name : #Formulario,
