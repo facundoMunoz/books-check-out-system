@@ -1,5 +1,5 @@
 "
-PluggableListMorphColored que redefine el Morph que utiliza para la lista a una que permite cambiar el color del contenido.
+PluggableListMorphColored que redefine el Morph que utiliza como lista a una que permite cambiar el color del contenido
 "
 Class {
 	#name : #PluggableListMorphColored,

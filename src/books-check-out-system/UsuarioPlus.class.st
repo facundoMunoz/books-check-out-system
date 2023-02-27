@@ -1,3 +1,11 @@
+"
+TDA que representa un usuario plus
+
+###Variables de instancia
+	codigoSeguridad:		<Integer>
+	fechaPago:		<Date>
+	nroTarjeta:		<Integer>
+"
 Class {
 	#name : #UsuarioPlus,
 	#superclass : #Usuario,

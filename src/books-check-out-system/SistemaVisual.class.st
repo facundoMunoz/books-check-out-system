@@ -1,11 +1,9 @@
 "
-Morph encargado de administrar toda la parte visual del sistema de bibliotecas, siendo ésta la clase que se llama para iniciarlo.
+Morph encargado de administrar toda la parte visual del sistema, siendo ésta la clase que se llama para iniciarlo
 
-##Ejemplo de uso:
+###Ejemplo de creación vacío:
 ```
-| sistemaBiblioteca |
-sistemaBiblioteca := SistemaVisual new.
-sistemaVisual openInWorld
+SistemaVisual crear
 ```
 "
 Class {
@@ -17,6 +15,24 @@ Class {
 	],
 	#category : #'books-check-out-system'
 }
+
+{ #category : #construction }
+SistemaVisual class >> crear [
+
+	self new openInWindowLabeled: 'Sistema'.
+]
+
+{ #category : #construction }
+SistemaVisual class >> crearConDatos [
+
+	self new cargaInicialPrueba openInWindowLabeled: 'Sistema'
+]
+
+{ #category : #private }
+SistemaVisual >> cargaInicialPrueba [
+
+	sistema cargaInicialPrueba
+]
 
 { #category : #aplicacion }
 SistemaVisual >> crearFormulario: unLabel posicion: unaPosicion [
@@ -150,7 +166,6 @@ SistemaVisual >> initialize [
 	super initialize.
 	"Creamos el sistema y cargamos datos de prueba"
 	sistema := Sistema new.
-	sistema cargaInicialPrueba.
 	"Estilo de la ventana"
 	colorPrincipal := Color r: 71 / 255 g: 90 / 255 b: 105 / 255.
 	self borderColor: colorPrincipal.
@@ -276,7 +291,7 @@ SistemaVisual >> menuAgregarLibro: unaBiblioteca [
 		nuevaVentana: [ self menuOpcionesBiblioteca: unaBiblioteca ]
 		nivel: 5.
 	"Título"
-	self crearTitulo: 'Añadir biblioteca'.
+	self crearTitulo: 'Añadir libro'.
 	"Formulario id"
 	formId := self
 		          crearFormulario: 'ID'
@@ -300,7 +315,9 @@ SistemaVisual >> menuAgregarLibro: unaBiblioteca [
 	"Selector tipo"
 	selectorTipo := self
 		                crearSelector: 'Tipo'
-		                lista: (OrderedCollection withAll: #('Físico' 'Digital' 'Audiolibro'))
+		                lista:
+		                (OrderedCollection withAll:
+			                 #( 'Físico' 'Digital' 'Audiolibro' ))
 		                posicion: self center + (-150 @ 125).
 	self addMorph: selectorTipo.
 	"Formulario autores"
@@ -746,7 +763,7 @@ SistemaVisual >> menuNuevoPrestamoUsuario: unUsuario [
 					 ifNil: [ 
 						 self
 							 ventanaNotificacion:
-							 '¡Agrege una biblioteca favorita primero!'
+							 '¡Debe agregar una biblioteca favorita primero!'
 							 redirige: [ self menuNuevoPrestamoUsuario: unUsuario ] ]
 					 ifNotNil: [ 
 						 | bibliotecaSeleccionada |
@@ -921,27 +938,6 @@ SistemaVisual >> nuevaVentana: ventanaAnterior nivel: unNivel [
 			 emphasis: TextEmphasis bold emphasisCode;
 			 color: colorPrincipal;
 			 center: self topCenter + (0 @ 25))
-]
-
-{ #category : #'as yet unclassified' }
-SistemaVisual >> prueba [
-
-	| lista |
-	lista := PluggableListMorphColored
-		         on:
-			         #( 'hola' 'hola' 'hola' 'hola' 'hola' 'hola' 'hola' 'hola'
-			            'hola' 'hola' )
-		         list: #value
-		         selected: nil
-		         changeSelected: nil.
-	self removeAllMorphs.
-	lista center: self center.
-	self addMorph: lista.
-	self addMorph: (BotonAccion
-			 crear: 'Reiniciar'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 100)
-			 yFuncion: [ self prueba ])
 ]
 
 { #category : #aplicacion }

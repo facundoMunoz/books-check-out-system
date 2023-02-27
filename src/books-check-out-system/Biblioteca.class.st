@@ -1,3 +1,16 @@
+"
+TDA que representa una biblioteca
+
+### Variables de instancia
+	colLibros:		<OrderedCollection>
+	colPrestamosActuales:		<OrderedCollection>
+	direccion:		<String>
+	duracionDiasPrestamo:		<Integer>
+	id:		<Integer>
+	nombre:		<String>
+	nombreRepresentante:		<String>
+	telefono:		<String>
+"
 Class {
 	#name : #Biblioteca,
 	#superclass : #Object,

@@ -1,3 +1,12 @@
+"
+TDA que representa un préstamo de libros regulares
+
+###Variables de instancia
+	colLibros:		<OrderedCollection>
+	fechaDevolucion:		<Date>
+	fechaInicio:		<Date>
+	usuario:		<Usuario>
+"
 Class {
 	#name : #Prestamo,
 	#superclass : #Object,

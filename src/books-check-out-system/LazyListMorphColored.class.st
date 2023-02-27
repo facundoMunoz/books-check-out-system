@@ -1,5 +1,5 @@
 "
-LazyListMorph con color predefinido.
+LazyListMorph con color predefinido
 "
 Class {
 	#name : #LazyListMorphColored,

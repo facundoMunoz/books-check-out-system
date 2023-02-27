@@ -1,3 +1,11 @@
+"
+Clase encargada de administrar la red de bibliotecas, usuarios y préstamos
+
+###Variables de instancia
+	colAutores:		<OrderedCollection>
+	colBibliotecas:		<OrderedCollection>
+	colUsuarios:		<OrderedCollection>
+"
 Class {
 	#name : #Sistema,
 	#superclass : #Object,
@@ -42,6 +50,7 @@ Sistema >> agregarUsuario: unUsuario [
 { #category : #testing }
 Sistema >> cargaInicialPrueba [
 
+"Bibliotecas"
 	self agregarBiblioteca: (Biblioteca
 			 crearId: 1
 			 direccion: 'Av. Sta. Fe 1860'
@@ -49,7 +58,12 @@ Sistema >> cargaInicialPrueba [
 			 telefono: '011 5420-2938'
 			 nombreRepresentante: 'Carlos'
 			 duracionDiasPrestamo: 31).
-			self agregarUsuario: (Usuario crearDni: 43156688 nombre: 'Facundo' apellido: 'Muñoz'  contrasenia: 'caracoles13' )
+			"Usuarios"
+	self agregarUsuario: (Usuario
+			 crearDni: 43156688
+			 nombre: 'Facundo'
+			 apellido: 'Muñoz'
+			 contrasenia: 'caracoles13')
 ]
 
 { #category : #aplicacion }

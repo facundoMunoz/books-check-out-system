@@ -1,5 +1,5 @@
 "
-Morph etiquetado rectangular que ejecuta un bloque cuando se le da click.
+Morph etiquetado rectangular que ejecuta un bloque cuando se le da click
 "
 Class {
 	#name : #BotonAccion,

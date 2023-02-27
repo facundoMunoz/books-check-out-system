@@ -1,9 +1,9 @@
+"
+DropListMorph que permite cambiar el color del contenido y define una lista con color predeterminado
+"
 Class {
 	#name : #DropListMorphColored,
 	#superclass : #DropListMorph,
-	#instVars : [
-		'backgroundColor'
-	],
 	#category : #'books-check-out-system'
 }
 
@@ -35,17 +35,17 @@ DropListMorphColored >> newContentMorph [
 		      font: self theme textFont;
 		      cornerStyle: (self theme textEntryCornerStyleIn: self);
 		      hResizing: #spaceFill;
-		      lock;
-		      setBalloonText: nil.
+		      setBalloonText: nil;
+		      lock.
 	^ pt
 ]
 
 { #category : #initialization }
 DropListMorphColored >> setColor: unColor [
 
-	backgroundColor := unColor.
 	contentMorph color: unColor.
-	contentMorph textColor: Color white
+	contentMorph textColor: Color white.
+	self updateContents
 ]
 
 { #category : #updating }

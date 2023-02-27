@@ -1,3 +1,13 @@
+"
+TDA que representa un usuario regular
+
+###Variables de instancia
+dni:  <Integer>
+nombre:  <String>
+apellido:  <String>
+contrasenia:  <String>
+colBibliotecasFav:   <OrderedCollection>
+"
 Class {
 	#name : #Usuario,
 	#superclass : #Object,

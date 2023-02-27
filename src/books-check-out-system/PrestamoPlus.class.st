@@ -1,3 +1,6 @@
+"
+TDA que representa un préstamo cuyos libros requieren 'Plus', que son prestados por la mitad del tiempo de uno regular
+"
 Class {
 	#name : #PrestamoPlus,
 	#superclass : #Prestamo,

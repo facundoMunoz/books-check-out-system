@@ -1,3 +1,16 @@
+"
+TDA que representa un libro
+
+### Variables de instancia
+	anioEdicion:		<Integer>
+	colAutores:		<OrderedCollection>
+	disponible:		<Boolean>
+	editorial:		<String>
+	id:		<Integer>
+	nombre:		<String>
+	tipo:		<String>
+
+"
 Class {
 	#name : #Libro,
 	#superclass : #Object,
