@@ -13,7 +13,21 @@ Formulario >> handlesMouseDown: event [
 	^ true
 ]
 
+{ #category : #initialization }
+Formulario >> initialize [
+
+	super initialize.
+	self theme: PharoDarkTheme new
+]
+
 { #category : #'event handling' }
 Formulario >> mouseDown: evt [
     evt hand waitForClicksOrDrag: self event: evt
+]
+
+{ #category : #'event handling' }
+Formulario >> textChanged [
+
+	super textChanged.
+	self textColor: Color white
 ]

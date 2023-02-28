@@ -48,6 +48,11 @@ DropListMorphColored >> setColor: unColor [
 	self updateContents
 ]
 
+{ #category : #accessing }
+DropListMorphColored >> theme [ 
+^ PharoDarkTheme new
+]
+
 { #category : #updating }
 DropListMorphColored >> updateContentColor: paneColor [
 
