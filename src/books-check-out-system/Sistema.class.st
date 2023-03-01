@@ -50,20 +50,68 @@ Sistema >> agregarUsuario: unUsuario [
 { #category : #testing }
 Sistema >> cargaInicialPrueba [
 
-"Bibliotecas"
-	self agregarBiblioteca: (Biblioteca
-			 crearId: 1
-			 direccion: 'Av. Sta. Fe 1860'
-			 nombre: 'El Ateneo'
-			 telefono: '011 5420-2938'
-			 nombreRepresentante: 'Carlos'
-			 duracionDiasPrestamo: 31).
-			"Usuarios"
-	self agregarUsuario: (Usuario
-			 crearDni: 43156688
-			 nombre: 'Facundo'
-			 apellido: 'Muñoz'
-			 contrasenia: 'caracoles13')
+	"Bibliotecas"
+
+	self
+		agregarBiblioteca: (Biblioteca
+				 crearId: 1
+				 direccion: 'Av. Sta. Fe 1860'
+				 nombre: 'El Ateneo'
+				 telefono: '011 5420-2938'
+				 nombreRepresentante: 'Carlos'
+				 duracionDiasPrestamo: 31);
+		agregarBiblioteca: (Biblioteca
+				 crearId: 2
+				 direccion: 'Av. Sta. Fe 1860'
+				 nombre: 'Tres Tristes Tigres'
+				 telefono: '011 5420-2938'
+				 nombreRepresentante: 'Carlos'
+				 duracionDiasPrestamo: 31);
+		agregarBiblioteca: (Biblioteca
+				 crearId: 3
+				 direccion: 'Av. Sta. Fe 1860'
+				 nombre: 'El fin del mundo'
+				 telefono: '011 5420-2938'
+				 nombreRepresentante: 'Carlos'
+				 duracionDiasPrestamo: 31);
+		agregarBiblioteca: (Biblioteca
+				 crearId: 4
+				 direccion: 'Av. Sta. Fe 1860'
+				 nombre: 'Nacional'
+				 telefono: '011 5420-2938'
+				 nombreRepresentante: 'Carlos'
+				 duracionDiasPrestamo: 31);
+		agregarBiblioteca: (Biblioteca
+				 crearId: 5
+				 direccion: 'Av. Sta. Fe 1860'
+				 nombre: 'Sombrerero Loco'
+				 telefono: '011 5420-2938'
+				 nombreRepresentante: 'Carlos'
+				 duracionDiasPrestamo: 31);
+		agregarBiblioteca: (Biblioteca
+				 crearId: 6
+				 direccion: 'Av. Sta. Fe 1860'
+				 nombre: 'Colección de Dragones'
+				 telefono: '011 5420-2938'
+				 nombreRepresentante: 'Carlos'
+				 duracionDiasPrestamo: 31).
+	"Usuarios"
+	self
+		agregarUsuario: (Usuario
+				 crearDni: 43156688
+				 nombre: 'Facundo'
+				 apellido: 'Muñoz'
+				 contrasenia: 'contrasenia123');
+		agregarUsuario: (Usuario
+				 crearDni: 44000000
+				 nombre: 'Cristopher'
+				 apellido: 'Ovaillos'
+				 contrasenia: 'contrasenia123');
+		agregarUsuario: (Usuario
+				 crearDni: 44000001
+				 nombre: 'Celina'
+				 apellido: 'Gramajo'
+				 contrasenia: 'contrasenia123')
 ]
 
 { #category : #aplicacion }

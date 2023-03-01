@@ -65,7 +65,7 @@ SistemaVisual >> crearFormulario: unLabel posicion: unaPosicion [
 { #category : #aplicacion }
 SistemaVisual >> crearLista: unaLista bloqueClave: unBloqueClave bloqueAccion: unBloqueAccion [
 
-	| tamanioLista scroll scrollContents elementoActual point |
+	| tamanioLista scroll scrollContents point |
 	"Obtenemos el tamaño"
 	tamanioLista := unaLista size.
 	"Creamos el panel de scroll"
@@ -88,6 +88,7 @@ SistemaVisual >> crearLista: unaLista bloqueClave: unBloqueClave bloqueAccion: u
 	scroll scrollTarget: scrollContents.
 	"Listamos los elementos dentro del scroll"
 	1 to: tamanioLista do: [ :posVertical | 
+		| elementoActual |
 		elementoActual := unaLista at: posVertical.
 		point := scrollContents center x + 50 @ (posVertical * 100 - 50).
 		scrollContents addMorph: (BotonAccion
@@ -169,7 +170,7 @@ SistemaVisual >> initialize [
 	"Estilo de la ventana"
 	colorPrincipal := Color r: 71 / 255 g: 90 / 255 b: 105 / 255.
 	self borderColor: colorPrincipal.
-	self color: Color white.
+	self color: (Color r: 255 / 255 g: 251 / 255 b: 241 / 255).
 	self bounds: (self position extent: 600 @ 600).
 	"Comenzamos en el menú principal"
 	self menuPrincipal
@@ -265,8 +266,7 @@ SistemaVisual >> menuAgregarBibliotecaFav: unUsuario [
 					 ifNotNil: [ 
 						 | bibliotecaSeleccionada |
 						 bibliotecaSeleccionada := sistema getBibliotecas at:
-							                           selector getCurrentSelectionIndex
-							                           + 1.
+							                           selector listSelectionIndex.
 						 (unUsuario getBibliotecasFavoritas indexOf:
 							  bibliotecaSeleccionada) = 0
 							 ifFalse: [ 
@@ -759,19 +759,13 @@ SistemaVisual >> menuNuevoPrestamoUsuario: unUsuario [
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 100)
 			 yFuncion: [ 
-				 selector selectedItem
-					 ifNil: [ 
-						 self
-							 ventanaNotificacion:
-							 '¡Debe agregar una biblioteca favorita primero!'
-							 redirige: [ self menuNuevoPrestamoUsuario: unUsuario ] ]
-					 ifNotNil: [ 
+				 
 						 | bibliotecaSeleccionada |
 						 bibliotecaSeleccionada := bibliotecasFav at:
 							                           selector listSelectionIndex.
 						 self
 							 menuLibrosPrestamoUsuario: unUsuario
-							 biblioteca: bibliotecaSeleccionada ] ])
+							 biblioteca: bibliotecaSeleccionada  ])
 ]
 
 { #category : #aplicacion }
@@ -817,7 +811,13 @@ SistemaVisual >> menuOpcionesPrestamoUsuario: unUsuario [
 			 crear: 'Crear préstamo'
 			 color: colorPrincipal
 			 posicion: self center - (0 @ 100)
-			 yFuncion: [ self menuNuevoPrestamoUsuario: unUsuario ]).
+			 yFuncion: [ 
+				 unUsuario getBibliotecasFavoritas isEmpty
+					 ifTrue: [ self
+							 ventanaNotificacion:
+							 '¡Debe agregar una biblioteca favorita primero!'
+							 redirige: [ self menuOpcionesPrestamoUsuario: unUsuario ]  ]
+					 ifFalse: [ self menuNuevoPrestamoUsuario: unUsuario ] ]).
 	"Botón añadir biblioteca favorita"
 	self addMorph: (BotonAccion
 			 crear: 'Préstamos activos'

@@ -29,5 +29,5 @@ Formulario >> mouseDown: evt [
 Formulario >> textChanged [
 
 	super textChanged.
-	self textColor: Color white
+	self textColor: Color white.
 ]
