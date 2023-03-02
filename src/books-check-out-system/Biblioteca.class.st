@@ -45,6 +45,12 @@ Biblioteca class >> crearId: unaId direccion: unaDir nombre: unNom telefono: unT
 	^ bibliotecaNueva
 ]
 
+{ #category : #aplicacion }
+Biblioteca class >> getDiasSuspension [
+
+	^ diasSuspension 
+]
+
 { #category : #adding }
 Biblioteca >> agregarLibro: unLibro [
 
