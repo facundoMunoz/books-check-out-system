@@ -190,7 +190,7 @@ Biblioteca >> registrarPrestamo: unUsuario libros: unaColLibros [
 						 libros: colLibrosRegulares) ].
 			colLibrosPlus ifNotEmpty: [ 
 				self nuevoPrestamo:
-					(Prestamo crear: unUsuario biblioteca: self libros: colLibrosPlus) ].
+					(PrestamoPlus crear: unUsuario biblioteca: self libros: colLibrosPlus) ].
 			exito := true ] ].
 	^ exito
 ]

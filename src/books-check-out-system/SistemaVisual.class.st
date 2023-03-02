@@ -440,6 +440,25 @@ SistemaVisual >> menuBuscarPrestamo: unaListaPrestamos bloqueClave: bloqueClave 
 ]
 
 { #category : #aplicacion }
+SistemaVisual >> menuBuscarPrestamoUsuario: unaListaPrestamos usuario: unUsuario bloqueClave: bloqueClave menuAnterior: unMenuAnterior [
+
+	self nuevaVentana: unMenuAnterior nivel: 5.
+	"Título"
+	self crearTitulo: 'Préstamos activos'.
+	"Listamos préstamos"
+	self
+		crearLista: unaListaPrestamos
+		bloqueClave: bloqueClave
+		bloqueAccion: [ :prestamo | 
+			self menuInfoPrestamo: prestamo ventanaListaAnterior: [ 
+				self
+					menuBuscarPrestamoUsuario: (sistema getPrestamosUsuario: unUsuario)
+					usuario: unUsuario
+					bloqueClave: bloqueClave
+					menuAnterior: unMenuAnterior ] ]
+]
+
+{ #category : #aplicacion }
 SistemaVisual >> menuBuscarUsuario [
 
 	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
@@ -690,7 +709,8 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 
 	| librosBiblioteca librosSeleccionados selectorAgregado selectorActuales |
 	"Obtenemos las bibliotecas que aún no están como favoritas"
-	librosBiblioteca := unaBiblioteca getLibros.
+	librosBiblioteca := unaBiblioteca getLibros select: [ :libro | 
+		                    libro getDisponible ].
 	librosSeleccionados := OrderedCollection new.
 	self
 		nuevaVentana: [ self menuNuevoPrestamoUsuario: unUsuario ]
@@ -724,7 +744,7 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 							 biblioteca: unaBiblioteca ] ] ]).
 	"Selector libros"
 	selectorAgregado := self
-		                    crearSelector: 'Seleccionar libro'
+		                    crearSelector: 'Libros disponibles'
 		                    lista:
 		                    (librosBiblioteca collect: [ :biblioteca | 
 			                     biblioteca getNombre ])
@@ -749,7 +769,7 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 						 libroNuevo := librosBiblioteca at:
 							               selectorAgregado listSelectionIndex.
 						 (librosSeleccionados indexOf: libroNuevo) = 0
-						 & librosSeleccionados size < 5 ifTrue: [ 
+						 & (librosSeleccionados size < 5) ifTrue: [ 
 							 librosSeleccionados add: libroNuevo.
 							 "Actualizamos la lista"
 							 selectorActuales
@@ -762,20 +782,29 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 200)
 			 yFuncion: [ 
-				 (unaBiblioteca
-					  registrarPrestamo: unUsuario
-					  libros: librosSeleccionados)
+				 librosSeleccionados isEmpty
 					 ifTrue: [ 
 						 self
-							 ventanaNotificacion: '¡Préstamo realizado con éxtito!'
-							 redirige: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]
-					 ifFalse: [ 
-						 self
-							 ventanaNotificacion: 'Ocurrió un error, intente de nuevo'
+							 ventanaNotificacion: '¡Agregue al menos un libro!'
 							 redirige: [ 
 							 self
 								 menuLibrosPrestamoUsuario: unUsuario
-								 biblioteca: unaBiblioteca ] ] ])
+								 biblioteca: unaBiblioteca ] ]
+					 ifFalse: [ 
+						 (unaBiblioteca
+							  registrarPrestamo: unUsuario
+							  libros: librosSeleccionados)
+							 ifTrue: [ 
+								 self
+									 ventanaNotificacion: '¡Préstamo realizado con éxtito!'
+									 redirige: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]
+							 ifFalse: [ 
+								 self
+									 ventanaNotificacion: 'Debe ser Plus para seleccionar Audiolibros'
+									 redirige: [ 
+									 self
+										 menuLibrosPrestamoUsuario: unUsuario
+										 biblioteca: unaBiblioteca ] ] ] ])
 ]
 
 { #category : #aplicacion }
@@ -818,13 +847,15 @@ SistemaVisual >> menuNuevoPrestamoUsuario: unUsuario [
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 100)
 			 yFuncion: [ 
-				 
-						 | bibliotecaSeleccionada |
-						 bibliotecaSeleccionada := bibliotecasFav at:
-							                           selector listSelectionIndex.
+				 | bibliotecaSeleccionada |
+				 bibliotecaSeleccionada := bibliotecasFav at:
+					                           selector listSelectionIndex.
+				 (bibliotecaSeleccionada tienePrestamoActivo: unUsuario)
+					 ifTrue: [ self ventanaNotificacion: 'Ya tiene un préstamo en ', bibliotecaSeleccionada getNombre redirige: [ self menuNuevoPrestamoUsuario: unUsuario ] ]
+					 ifFalse: [ 
 						 self
 							 menuLibrosPrestamoUsuario: unUsuario
-							 biblioteca: bibliotecaSeleccionada  ])
+							 biblioteca: bibliotecaSeleccionada ] ])
 ]
 
 { #category : #aplicacion }
@@ -889,8 +920,9 @@ SistemaVisual >> menuOpcionesPrestamoUsuario: unUsuario [
 			 posicion: self center
 			 yFuncion: [ 
 				 self
-					 menuBuscarPrestamo: (sistema getPrestamosUsuario: unUsuario)
-					bloqueClave: [ :prestamo | prestamo getBiblioteca getNombre ]
+					 menuBuscarPrestamoUsuario: (sistema getPrestamosUsuario: unUsuario)
+					 usuario: unUsuario
+					 bloqueClave: [ :prestamo | prestamo getBiblioteca getNombre ]
 					 menuAnterior: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]).
 	"Botón préstamos activos"
 	self addMorph: (BotonAccion

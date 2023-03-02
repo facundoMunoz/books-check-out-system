@@ -73,7 +73,9 @@ Prestamo >> getUsuario [
 Prestamo >> iniciar: unUsuario biblioteca: unaBiblioteca libros: unosLibros [
 
 	usuario := unUsuario.
-	biblioteca := unaBiblioteca .
+	biblioteca := unaBiblioteca.
 	colLibros := unosLibros.
+	"Al crear el préstamo los libros se marcan no disponibles"
+	colLibros do: [:libro | libro setDisponible: false].
 	fechaInicio := Date today
 ]

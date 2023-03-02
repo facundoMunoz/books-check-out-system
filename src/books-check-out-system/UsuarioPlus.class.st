@@ -46,17 +46,17 @@ UsuarioPlus >> asUsuarioRegular [
 	^ nuevoRegular
 ]
 
-{ #category : #observadores }
+{ #category : #private }
 UsuarioPlus >> getCodSeguridad [
 ^ codigoSeguridad 
 ]
 
-{ #category : #observadores }
+{ #category : #private }
 UsuarioPlus >> getFechaPago [
 ^ fechaPago
 ]
 
-{ #category : #observadores }
+{ #category : #private }
 UsuarioPlus >> getNroTarjeta [
 ^ nroTarjeta 
 ]
@@ -79,9 +79,8 @@ UsuarioPlus >> iniciar: unDni nombre: unNombre apellido: unApellido contrasenia:
 	fechaPago := Date today
 ]
 
-{ #category : #aplicacion }
+{ #category : #private }
 UsuarioPlus >> puedeSolicitarLibros: unaColLibros [
 
-	^ (super puedeSolicitarLibros: unaColLibros)
-	  | ((Date today - fechaPago) < 30)
+	^ ((Date today - fechaPago) asDays < 30)
 ]

@@ -103,7 +103,7 @@ Sistema >> cargaInicialPrueba [
 				 nombre: 'El principito'
 				 editorial: 'Salamandra'
 				 anioEdicion: 2023
-				 tipo: 'Físico'
+				 tipo: 'Digital'
 				 colAutores: 'Antoine de Saint-Exupéry');
 		add: (Libro
 				 crearId: 2
@@ -119,20 +119,27 @@ Sistema >> cargaInicialPrueba [
 				 anioEdicion: 2023
 				 tipo: 'Físico'
 				 colAutores: 'Rick Riordan');
-				add: (Libro
+		add: (Libro
 				 crearId: 4
 				 nombre: 'Percy Jackson II'
 				 editorial: 'Salamandra'
 				 anioEdicion: 2023
 				 tipo: 'Físico'
 				 colAutores: 'Rick Riordan');
-				add: (Libro
+		add: (Libro
 				 crearId: 5
 				 nombre: 'Percy Jackson III'
 				 editorial: 'Salamandra'
 				 anioEdicion: 2023
 				 tipo: 'Físico'
-				 colAutores: 'Rick Riordan').
+				 colAutores: 'Rick Riordan');
+		add: (Audiolibro
+				 crearId: 6
+				 nombre: 'El Nombre de la Rosa'
+				 editorial: 'Roboto'
+				 anioEdicion: 2023
+				 tipo: 'Audiolibro'
+				 colAutores: 'Umberto Eco').
 	colBibliotecas do: [ :biblioteca | 
 		colLibrosNuevos do: [ :libro | "Todas las bibliotecas tienen los mismos libros de ejemplo clonados" 
 			biblioteca agregarLibro: libro clonar ] ].

@@ -104,13 +104,14 @@ Usuario >> iniciar: unDni nombre: unNombre apellido: unApellido contrasenia: una
 	colBibliotecasFav := OrderedCollection new
 ]
 
-{ #category : #aplicacion }
+{ #category : #private }
 Usuario >> puedeSolicitarLibros: unaColLibros [
 
-| puede |
-puede := true.
-unaColLibros do: [ :libro | libro necesitaPlus ifTrue: [ puede := false ] ].
-^ puede
+	| puede |
+	puede := true.
+	unaColLibros do: [ :libro | 
+		libro necesitaPlus ifTrue: [ puede := false ] ].
+	^ puede
 ]
 
 { #category : #aplicacion }
@@ -120,10 +121,9 @@ Usuario >> puedeSolicitarPrestamo: unaColLibros diasSuspension: diasSuspension [
 	puede := true.
 	unaColLibros do: [ :libro | 
 		libro getDisponible ifFalse: [ puede := false ] ].
-	puede & fechaSuspension isNotNil ifTrue: [ 
-		puede := (Date today - fechaSuspension) asDays < diasSuspension
-			         ifTrue: [ false ]
-			         ifFalse: [ self puedeSolicitarLibros: unaColLibros ] ].
+	puede & (self puedeSolicitarLibros: unaColLibros) ifTrue: [ 
+		fechaSuspension isNotNil ifTrue: [ "Verifica si se superaron los días mínimos desde la suspensión" 
+			puede := (Date today - fechaSuspension) asDays > diasSuspension ] ] ifFalse: [puede := false].
 	^ puede
 ]
 
