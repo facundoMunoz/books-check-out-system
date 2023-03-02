@@ -16,6 +16,7 @@ Class {
 		'nombre',
 		'apellido',
 		'contrasenia',
+		'fechaSuspension',
 		'colBibliotecasFav'
 	],
 	#category : #'books-check-out-system'
@@ -103,7 +104,35 @@ Usuario >> iniciar: unDni nombre: unNombre apellido: unApellido contrasenia: una
 	colBibliotecasFav := OrderedCollection new
 ]
 
+{ #category : #aplicacion }
+Usuario >> puedeSolicitarLibros: unaColLibros [
+
+| puede |
+puede := true.
+unaColLibros do: [ :libro | libro necesitaPlus ifTrue: [ puede := false ] ].
+^ puede
+]
+
+{ #category : #aplicacion }
+Usuario >> puedeSolicitarPrestamo: unaColLibros diasSuspension: diasSuspension [
+
+	| puede |
+	puede := true.
+	unaColLibros do: [ :libro | 
+		libro getDisponible ifFalse: [ puede := false ] ].
+	puede & fechaSuspension isNotNil ifTrue: [ 
+		puede := (Date today - fechaSuspension) asDays < diasSuspension
+			         ifTrue: [ false ]
+			         ifFalse: [ self puedeSolicitarLibros: unaColLibros ] ].
+	^ puede
+]
+
 { #category : #modificadores }
 Usuario >> setColBibliotecasFav: unaColFav [
 colBibliotecasFav := unaColFav 
+]
+
+{ #category : #aplicacion }
+Usuario >> suspender [
+fechaSuspension := Date today
 ]

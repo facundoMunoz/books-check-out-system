@@ -35,6 +35,18 @@ libro iniciarId: unaId nombre: unNombre editorial: unaEditorial anioEdicion: unA
 ]
 
 { #category : #aplicacion }
+Libro >> clonar [
+
+	^ self class
+		  crearId: id
+		  nombre: nombre
+		  editorial: editorial
+		  anioEdicion: anioEdicion
+		  tipo: tipo
+		  colAutores: colAutores
+]
+
+{ #category : #aplicacion }
 Libro >> correspondeId: unaId [
 
 	"Verifica si la id corresponde con el libro"
@@ -91,4 +103,15 @@ Libro >> iniciarId: unaId nombre: unNombre editorial: unaEditorial anioEdicion: 
 	colAutores := unosAutores.
 	"Al momento de cargarlo suponemos que está disponible"
 	disponible := true
+]
+
+{ #category : #observadores }
+Libro >> necesitaPlus [
+
+^ false
+]
+
+{ #category : #initialization }
+Libro >> setDisponible: aBoolean [
+disponible := aBoolean 
 ]

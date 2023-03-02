@@ -258,12 +258,6 @@ SistemaVisual >> menuAgregarBibliotecaFav: unUsuario [
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 100)
 			 yFuncion: [ 
-				 selector selectedItem
-					 ifNil: [ 
-						 self
-							 ventanaNotificacion: '¡No hay bibliotecas cargadas!'
-							 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ]
-					 ifNotNil: [ 
 						 | bibliotecaSeleccionada |
 						 bibliotecaSeleccionada := sistema getBibliotecas at:
 							                           selector listSelectionIndex.
@@ -271,8 +265,9 @@ SistemaVisual >> menuAgregarBibliotecaFav: unUsuario [
 							  bibliotecaSeleccionada) = 0
 							 ifFalse: [ 
 								 self
-									 ventanaNotificacion: '¡' , selector selectedItem
-										 , ' ya pertenece a las bibliotecas favoritas!'
+									 ventanaNotificacion:
+									 '¡' , selector selectedItem
+									 , ' ya es una biblioteca favorita!'
 									 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ]
 							 ifTrue: [ 
 								 unUsuario agregarBibliotecaFav: bibliotecaSeleccionada.
@@ -280,7 +275,7 @@ SistemaVisual >> menuAgregarBibliotecaFav: unUsuario [
 									 ventanaNotificacion:
 									 'Biblioteca ' , selector selectedItem
 									 , ' agregada como favorita'
-									 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ] ] ])
+									 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ] ])
 ]
 
 { #category : #aplicacion }
@@ -427,7 +422,7 @@ SistemaVisual >> menuBuscarBiblioteca [
 ]
 
 { #category : #aplicacion }
-SistemaVisual >> menuBuscarPrestamo: unaListaPrestamos menuAnterior: unMenuAnterior [
+SistemaVisual >> menuBuscarPrestamo: unaListaPrestamos bloqueClave: bloqueClave menuAnterior: unMenuAnterior [
 
 	self nuevaVentana: unMenuAnterior nivel: 5.
 	"Título"
@@ -435,8 +430,13 @@ SistemaVisual >> menuBuscarPrestamo: unaListaPrestamos menuAnterior: unMenuAnter
 	"Listamos préstamos"
 	self
 		crearLista: unaListaPrestamos
-		bloqueClave: [ :prestamo | prestamo getUsuario getNombre ]
-		bloqueAccion: [  ]
+		bloqueClave: bloqueClave
+		bloqueAccion: [ :prestamo | 
+			self menuInfoPrestamo: prestamo ventanaListaAnterior: [ 
+				self
+					menuBuscarPrestamo: unaListaPrestamos
+					bloqueClave: bloqueClave
+					menuAnterior: unMenuAnterior ] ]
 ]
 
 { #category : #aplicacion }
@@ -614,6 +614,42 @@ SistemaVisual >> menuInfoLibro: unLibro biblioteca: unaBiblioteca [
 ]
 
 { #category : #aplicacion }
+SistemaVisual >> menuInfoPrestamo: unPrestamo ventanaListaAnterior: unaVentana [
+
+	self nuevaVentana: unaVentana nivel: 6.
+	"Título"
+	self crearTitulo: 'Préstamo'.
+	"Datos"
+	self
+		crearTexto: 'Usuario: ' , unPrestamo getUsuario getNombre , ' '
+			, unPrestamo getUsuario getApellido
+		posicion: self center - (0 @ 75).
+	self
+		crearTexto: 'Biblioteca: ' , unPrestamo getBiblioteca getNombre
+		posicion: self center - (0 @ 25).
+	self
+		crearTexto: 'Fecha realizado: ' , unPrestamo getFechaInicio asString
+		posicion: self center + (0 @ 25).
+	self addMorph: (self
+			 crearSelector: 'Libros'
+			 lista:
+			 (unPrestamo getLibros collect: [ :libro | libro getNombre ])
+			 posicion: self center + (0 @ 90)).
+	"Botón devolver"
+	self addMorph: (BotonAccion
+			 crear: 'Devolver préstamo'
+			 color: colorPrincipal
+			 posicion: self center + (0 @ 200)
+			 yFuncion: [ 
+				 self
+					 ventanaConfirmacion: '¿Devolver préstamo?'
+					 bloqueConfirma: [ 
+					 unPrestamo getBiblioteca devolverPrestamo: unPrestamo getUsuario.
+					self ventanaNotificacion: '¡Préstamo devuelto!' redirige: unaVentana ]
+					 redirige: [ self menuInfoPrestamo: unPrestamo ventanaListaAnterior: unaVentana ] ])
+]
+
+{ #category : #aplicacion }
 SistemaVisual >> menuInfoUsuario: unUsuario [
 
 	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
@@ -677,8 +713,15 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 				 selectorActuales selectedItem ifNotNil: [ 
 					 librosSeleccionados removeAt:
 						 selectorActuales listSelectionIndex.
-					 selectorActuales list:
-						 (librosSeleccionados collect: [ :libro | libro getNombre ]) ] ]).
+					 librosSeleccionados isEmpty
+						 ifFalse: [ "Actualizamos la lista"
+							 selectorActuales list:
+								 (librosSeleccionados collect: [ :libro | libro getNombre ]).
+							 selectorActuales listSelectionIndex: 1 ]
+						 ifTrue: [ 
+						 self
+							 menuLibrosPrestamoUsuario: unUsuario
+							 biblioteca: unaBiblioteca ] ] ]).
 	"Selector libros"
 	selectorAgregado := self
 		                    crearSelector: 'Seleccionar libro'
@@ -688,7 +731,7 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 		                    posicion: self center - (150 @ 50).
 	self addMorph: selectorAgregado.
 	self addMorph: (BotonAccion
-			 crear: 'Agregar'
+			 crear: 'Agregar seleccionado'
 			 color: colorPrincipal
 			 posicion: self center - (150 @ -50)
 			 yFuncion: [ 
@@ -708,15 +751,31 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 						 (librosSeleccionados indexOf: libroNuevo) = 0
 						 & librosSeleccionados size < 5 ifTrue: [ 
 							 librosSeleccionados add: libroNuevo.
-							 selectorActuales list:
-								 (librosSeleccionados collect: [ :libro | 
-									  libro getNombre ]) ] ] ]).
+							 "Actualizamos la lista"
+							 selectorActuales
+								 list:
+									 (librosSeleccionados collect: [ :libro | libro getNombre ]);
+								 listSelectionIndex: librosSeleccionados size ] ] ]).
 	"Crear préstamo"
 	self addMorph: (BotonAccion
 			 crear: 'Crear préstamo'
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 200)
-			 yFuncion: [  ])
+			 yFuncion: [ 
+				 (unaBiblioteca
+					  registrarPrestamo: unUsuario
+					  libros: librosSeleccionados)
+					 ifTrue: [ 
+						 self
+							 ventanaNotificacion: '¡Préstamo realizado con éxtito!'
+							 redirige: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]
+					 ifFalse: [ 
+						 self
+							 ventanaNotificacion: 'Ocurrió un error, intente de nuevo'
+							 redirige: [ 
+							 self
+								 menuLibrosPrestamoUsuario: unUsuario
+								 biblioteca: unaBiblioteca ] ] ])
 ]
 
 { #category : #aplicacion }
@@ -791,7 +850,11 @@ SistemaVisual >> menuOpcionesBiblioteca: unaBiblioteca [
 			 crear: 'Préstamos activos'
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 100)
-			 yFuncion: [ self menuBuscarPrestamo: unaBiblioteca getPrestamos menuAnterior: [ self menuOpcionesBiblioteca: unaBiblioteca ] ]).
+			 yFuncion: [ 
+				 self
+					 menuBuscarPrestamo: unaBiblioteca getPrestamos
+					 bloqueClave: [ :prestamo | prestamo getUsuario getNombre, ' ', prestamo getUsuario getApellido ]
+					 menuAnterior: [ self menuOpcionesBiblioteca: unaBiblioteca ] ]).
 	"Botón ver datos biblioteca"
 	self addMorph: (BotonAccion
 			 crear: 'Info biblioteca'
@@ -813,17 +876,22 @@ SistemaVisual >> menuOpcionesPrestamoUsuario: unUsuario [
 			 posicion: self center - (0 @ 100)
 			 yFuncion: [ 
 				 unUsuario getBibliotecasFavoritas isEmpty
-					 ifTrue: [ self
+					 ifTrue: [ 
+						 self
 							 ventanaNotificacion:
 							 '¡Debe agregar una biblioteca favorita primero!'
-							 redirige: [ self menuOpcionesPrestamoUsuario: unUsuario ]  ]
+							 redirige: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]
 					 ifFalse: [ self menuNuevoPrestamoUsuario: unUsuario ] ]).
 	"Botón añadir biblioteca favorita"
 	self addMorph: (BotonAccion
 			 crear: 'Préstamos activos'
 			 color: colorPrincipal
 			 posicion: self center
-			 yFuncion: [  ]).
+			 yFuncion: [ 
+				 self
+					 menuBuscarPrestamo: (sistema getPrestamosUsuario: unUsuario)
+					bloqueClave: [ :prestamo | prestamo getBiblioteca getNombre ]
+					 menuAnterior: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]).
 	"Botón préstamos activos"
 	self addMorph: (BotonAccion
 			 crear: 'Otras opciones'
@@ -855,7 +923,13 @@ SistemaVisual >> menuOpcionesUsuario: unUsuario [
 			 crear: 'Agregar biblioteca fav'
 			 color: colorPrincipal
 			 posicion: self center
-			 yFuncion: [ self menuAgregarBibliotecaFav: unUsuario ]).
+			 yFuncion: [ 
+				 sistema getBibliotecas isEmpty
+					 ifTrue: [ 
+						 self
+							 ventanaNotificacion: '¡No hay bibliotecas cargadas!'
+							 redirige: [ self menuOpcionesUsuario: unUsuario ] ]
+					 ifFalse: [ self menuAgregarBibliotecaFav: unUsuario ] ]).
 	"Botón préstamos activos"
 	self addMorph: (BotonAccion
 			 crear: 'Préstamos'
@@ -955,7 +1029,7 @@ SistemaVisual >> ventanaConfirmacion: unaPregunta bloqueConfirma: unBloquePositi
 		color: colorPrincipal;
 		center: self center - (0 @ 100).
 	self addMorph: pregunta.
-	"Botón confirmar, ejecuta el bloque positivo y redirige al menú"
+	"Botón confirmar, ejecuta el bloque positivo"
 	self addMorph: (BotonAccion
 			 crear: 'Confirmar'
 			 color: colorPrincipal
@@ -964,7 +1038,7 @@ SistemaVisual >> ventanaConfirmacion: unaPregunta bloqueConfirma: unBloquePositi
 	"Botón cancelar, solo redirige"
 	self addMorph: (BotonAccion
 			 crear: 'Cancelar'
-			 color: colorPrincipal 
+			 color: colorPrincipal
 			 posicion: self center + (0 @ 150)
 			 yFuncion: unMenu)
 ]

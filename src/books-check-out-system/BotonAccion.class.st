@@ -49,14 +49,15 @@ BotonAccion >> iniciar: unNombre color: unColor posicion: unasCoordenadas yFunci
 	label
 		contents: unNombre;
 		font: (LogicalFont familyName: 'Source Sans Pro' pointSize: 15);
-		emphasis: TextEmphasis bold emphasisCode; color: Color white.
+		emphasis: TextEmphasis bold emphasisCode;
+		color: Color white.
 
 	"Agregamos el texto y definimos el resto del estilo del botón"
 	self
 		addMorph: label;
 		borderWidth: 0;
 		color: unColor;
-		extent: 200 @ 50;
+		extent: 225 @ 50;
 		center: unasCoordenadas.
 
 	"Definimos la acción del botón"

@@ -78,3 +78,10 @@ UsuarioPlus >> iniciar: unDni nombre: unNombre apellido: unApellido contrasenia:
 	colBibliotecasFav := unaColFavoritas.
 	fechaPago := Date today
 ]
+
+{ #category : #aplicacion }
+UsuarioPlus >> puedeSolicitarLibros: unaColLibros [
+
+	^ (super puedeSolicitarLibros: unaColLibros)
+	  | ((Date today - fechaPago) < 30)
+]

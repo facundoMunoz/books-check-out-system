@@ -24,6 +24,9 @@ Class {
 		'colLibros',
 		'colPrestamosActuales'
 	],
+	#classInstVars : [
+		'diasSuspension'
+	],
 	#category : #'books-check-out-system'
 }
 
@@ -64,6 +67,23 @@ Biblioteca >> correspondeId: unaId [
 	^ (unaId = id)
 ]
 
+{ #category : #aplicacion }
+Biblioteca >> devolverPrestamo: unUsuario [
+
+	| prestamos exito |
+	exito := false.
+	prestamos := colPrestamosActuales select: [ :prestamo | 
+		             prestamo coincideUsuario: unUsuario ].
+	prestamos ifNotEmpty: [ 
+		prestamos do: [ :prestamo | 
+			| posicion |
+			prestamo devolver: duracionDiasPrestamo.
+			posicion := colPrestamosActuales indexOf: prestamo.
+			colPrestamosActuales removeAt: posicion ].
+		exito := true ].
+	^ exito
+]
+
 { #category : #observadores }
 Biblioteca >> getDireccion [
 ^ direccion 
@@ -101,6 +121,13 @@ Biblioteca >> getPrestamos [
 ^ colPrestamosActuales
 ]
 
+{ #category : #aplicacion }
+Biblioteca >> getPrestamosUsuario: unUsuario [
+
+	^ colPrestamosActuales select: [ :prestamo | 
+		prestamo coincideUsuario: unUsuario ]
+]
+
 { #category : #observadores }
 Biblioteca >> getTelefono [
 ^ telefono 
@@ -119,6 +146,12 @@ Biblioteca >> iniciarId: unaId direccion: unaDir nombre: unNom telefono: unTel n
 	colPrestamosActuales := OrderedCollection new
 ]
 
+{ #category : #private }
+Biblioteca >> nuevoPrestamo: unPrestamo [
+
+colPrestamosActuales add: unPrestamo 
+]
+
 { #category : #removing }
 Biblioteca >> quitarLibro: unLibro [
 | eliminado posicion |
@@ -127,4 +160,41 @@ unLibro getDisponible ifTrue: [ "Si no está en un prestamo y pertenece a la col
 	posicion :=colLibros indexOf: unLibro.
 	posicion = 0 ifFalse: [ colLibros removeAt: posicion. eliminado := true ] ].
 ^ eliminado
+]
+
+{ #category : #adding }
+Biblioteca >> registrarPrestamo: unUsuario libros: unaColLibros [
+
+	| exito |
+	exito := false.
+	(self tienePrestamoActivo: unUsuario) ifFalse: [ 
+		(unUsuario
+			 puedeSolicitarPrestamo: unaColLibros
+			 diasSuspension: self class getDiasSuspension) ifTrue: [ 
+			| colLibrosRegulares colLibrosPlus |
+			colLibrosRegulares := unaColLibros reject: [ :libro | 
+				                      libro necesitaPlus ].
+			colLibrosPlus := unaColLibros select: [ :libro | 
+				                 libro necesitaPlus ].
+			colLibrosRegulares ifNotEmpty: [ 
+				self nuevoPrestamo:
+					(Prestamo
+						 crear: unUsuario
+						 biblioteca: self
+						 libros: colLibrosRegulares) ].
+			colLibrosPlus ifNotEmpty: [ 
+				self nuevoPrestamo:
+					(Prestamo crear: unUsuario biblioteca: self libros: colLibrosPlus) ].
+			exito := true ] ].
+	^ exito
+]
+
+{ #category : #aplicacion }
+Biblioteca >> tienePrestamoActivo: unUsuario [
+
+	| tiene |
+	tiene := false.
+	colPrestamosActuales do: [ :prestamo | 
+		(prestamo coincideUsuario: unUsuario) ifTrue: [tiene := true]].
+	^ tiene
 ]

@@ -50,8 +50,8 @@ Sistema >> agregarUsuario: unUsuario [
 { #category : #testing }
 Sistema >> cargaInicialPrueba [
 
+	| colLibrosNuevos |
 	"Bibliotecas"
-
 	self
 		agregarBiblioteca: (Biblioteca
 				 crearId: 1
@@ -95,6 +95,47 @@ Sistema >> cargaInicialPrueba [
 				 telefono: '011 5420-2938'
 				 nombreRepresentante: 'Carlos'
 				 duracionDiasPrestamo: 31).
+	"Libros"
+	colLibrosNuevos := OrderedCollection new.
+	colLibrosNuevos
+		add: (Libro
+				 crearId: 1
+				 nombre: 'El principito'
+				 editorial: 'Salamandra'
+				 anioEdicion: 2023
+				 tipo: 'Físico'
+				 colAutores: 'Antoine de Saint-Exupéry');
+		add: (Libro
+				 crearId: 2
+				 nombre: 'Coraline'
+				 editorial: 'Salamandra'
+				 anioEdicion: 2023
+				 tipo: 'Físico'
+				 colAutores: 'Neil Gaiman');
+		add: (Libro
+				 crearId: 3
+				 nombre: 'Percy Jackson I'
+				 editorial: 'Salamandra'
+				 anioEdicion: 2023
+				 tipo: 'Físico'
+				 colAutores: 'Rick Riordan');
+				add: (Libro
+				 crearId: 4
+				 nombre: 'Percy Jackson II'
+				 editorial: 'Salamandra'
+				 anioEdicion: 2023
+				 tipo: 'Físico'
+				 colAutores: 'Rick Riordan');
+				add: (Libro
+				 crearId: 5
+				 nombre: 'Percy Jackson III'
+				 editorial: 'Salamandra'
+				 anioEdicion: 2023
+				 tipo: 'Físico'
+				 colAutores: 'Rick Riordan').
+	colBibliotecas do: [ :biblioteca | 
+		colLibrosNuevos do: [ :libro | "Todas las bibliotecas tienen los mismos libros de ejemplo clonados" 
+			biblioteca agregarLibro: libro clonar ] ].
 	"Usuarios"
 	self
 		agregarUsuario: (Usuario
@@ -111,6 +152,16 @@ Sistema >> cargaInicialPrueba [
 				 crearDni: 44000001
 				 nombre: 'Celina'
 				 apellido: 'Gramajo'
+				 contrasenia: 'contrasenia123');
+		agregarUsuario: (Usuario
+				 crearDni: 44000002
+				 nombre: 'Jesús'
+				 apellido: 'Castillo'
+				 contrasenia: 'contrasenia123');
+		agregarUsuario: (Usuario
+				 crearDni: 44000003
+				 nombre: 'Silvia'
+				 apellido: 'Amaro'
 				 contrasenia: 'contrasenia123')
 ]
 
@@ -131,6 +182,17 @@ Sistema >> getBiblioteca: unaId [
 { #category : #observadores }
 Sistema >> getBibliotecas [
 ^ colBibliotecas
+]
+
+{ #category : #aplicacion }
+Sistema >> getPrestamosUsuario: unUsuario [
+
+	| prestamos |
+	prestamos := OrderedCollection new.
+	colBibliotecas do: [ :bibliteca | 
+		(bibliteca getPrestamosUsuario: unUsuario) do: [ :prestamo | 
+			prestamos add: prestamo ] ].
+	^ prestamos
 ]
 
 { #category : #aplicacion }
