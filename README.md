@@ -9,15 +9,11 @@ Pharo Smalltalk based desktop app to manage libraries, users and books check out
 
 </div>
 
-<!-- CONTENTS -->
-<details> <summary> Table of Contents </summary>
+<!-- SCREENSHOTS -->
+<details> <summary>Screenshots</summary>
 
-- [Built With](#built-with)
-- [Getting Started](#getting-started)
-- [Usage](#usage)
-  - [Example](#example)
-- [Contact](#contact)
-- [Acknowledgments](#acknowledgments)
+![screenshot1](./img/screenshot-1.png)
+![screenshot1](./img/screenshot-2.png)
 
 </details>
 
