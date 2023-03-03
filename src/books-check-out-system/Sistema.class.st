@@ -39,8 +39,7 @@ Sistema >> agregarUsuario: unUsuario [
 	| agregado |
 	agregado := false.
 	colUsuarios
-		detect: [ :usuario | 
-		unUsuario correspondeDni: usuario getDni ]
+		detect: [ :usuario | unUsuario correspondeDni: usuario getDni ]
 		ifNone: [ 
 			agregado := true.
 			colUsuarios add: unUsuario ].
@@ -237,10 +236,9 @@ Sistema >> quitarUsuario: unUsuario [
 
 	| quitado posicion |
 	quitado := false.
-	 posicion := colUsuarios
-		indexOf: [ :usuario | unUsuario correspondeDni: usuario getDni ].
-		(posicion = 0) ifFalse: [ 
-			colUsuarios removeAt: posicion.
-			quitado := true ].
+	posicion := colUsuarios indexOf: unUsuario.
+	posicion = 0 ifFalse: [ 
+		colUsuarios removeAt: posicion.
+		quitado := true ].
 	^ quitado
 ]

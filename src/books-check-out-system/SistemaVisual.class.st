@@ -326,13 +326,27 @@ SistemaVisual >> menuAgregarLibro: unaBiblioteca [
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 250)
 			 yFuncion: [ 
-				 (unaBiblioteca agregarLibro: (Libro
-						   crearId: formId getText asString asInteger
-						   nombre: formNombre getText asString
-						   editorial: formEditorial getText asString
-						   anioEdicion: formAnioEdicion getText asString asInteger
-						   tipo: selectorTipo selectedItem
-						   colAutores: formAutores getText asString))
+				 | agregado |
+				 agregado := selectorTipo selectedItem = 'Audiolibro'
+					             ifTrue: [ 
+						             unaBiblioteca agregarLibro: (Audiolibro
+								              crearId: formId getText asString asInteger
+								              nombre: formNombre getText asString
+								              editorial: formEditorial getText asString
+								              anioEdicion:
+								              formAnioEdicion getText asString asInteger
+								              tipo: selectorTipo selectedItem
+								              colAutores: formAutores getText asString) ]
+					             ifFalse: [ 
+						             unaBiblioteca agregarLibro: (Libro
+								              crearId: formId getText asString asInteger
+								              nombre: formNombre getText asString
+								              editorial: formEditorial getText asString
+								              anioEdicion:
+								              formAnioEdicion getText asString asInteger
+								              tipo: selectorTipo selectedItem
+								              colAutores: formAutores getText asString) ].
+				 agregado
 					 ifTrue: [ 
 						 self
 							 ventanaNotificacion: '¡Libro añadido con éxito!'
@@ -558,7 +572,8 @@ SistemaVisual >> menuInfoBiblioteca: unaBiblioteca [
 
 	self nuevaVentana: [ self menuBuscarBiblioteca ] nivel: 4.
 	"Título"
-	self crearTitulo: '"' , unaBiblioteca getNombre , '"'.
+	self
+		crearTitulo: '"' , unaBiblioteca getNombre , '"'.
 	"Datos"
 	self
 		crearTexto: 'Id: ' , unaBiblioteca getId asString
@@ -863,7 +878,8 @@ SistemaVisual >> menuOpcionesBiblioteca: unaBiblioteca [
 
 	self nuevaVentana: [ self menuBuscarBiblioteca ] nivel: 4.
 	"Título"
-	self crearTitulo: '"' , unaBiblioteca getNombre , '"'.
+	self
+		crearTitulo: '"' , unaBiblioteca getNombre , '"'.
 	"Botón agregar material"
 	self addMorph: (BotonAccion
 			 crear: 'Agregar libro'
@@ -884,7 +900,9 @@ SistemaVisual >> menuOpcionesBiblioteca: unaBiblioteca [
 			 yFuncion: [ 
 				 self
 					 menuBuscarPrestamo: unaBiblioteca getPrestamos
-					 bloqueClave: [ :prestamo | prestamo getUsuario getNombre, ' ', prestamo getUsuario getApellido ]
+					 bloqueClave: [ :prestamo | 
+						 prestamo getUsuario getNombre , ' '
+						 , prestamo getUsuario getApellido ]
 					 menuAnterior: [ self menuOpcionesBiblioteca: unaBiblioteca ] ]).
 	"Botón ver datos biblioteca"
 	self addMorph: (BotonAccion
