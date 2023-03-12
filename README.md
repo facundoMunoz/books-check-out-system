@@ -69,4 +69,4 @@ This project was made using the following recources :heart:
 [personal-url]: https://github.com/facundoMunoz
 <!-- MY LINKEDIN -->
 [linkedin-shield]: https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white
-[linkedin-url]: https://www.linkedin.com/in/facundomunoz001/
+[linkedin-url]: https://www.linkedin.com/in/facundomunozdev/
