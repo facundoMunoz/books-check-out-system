@@ -11,7 +11,12 @@ Class {
 	#superclass : #BorderedMorph,
 	#instVars : [
 		'sistema',
-		'colorPrincipal'
+		'colorPrincipal',
+		'morphLista',
+		'listaActual',
+		'ultimaPosicionLista',
+		'bloqueClaveLista',
+		'bloqueAccionLista'
 	],
 	#category : #'books-check-out-system'
 }
@@ -66,6 +71,8 @@ SistemaVisual >> crearFormulario: unLabel posicion: unaPosicion [
 SistemaVisual >> crearLista: unaLista bloqueClave: unBloqueClave bloqueAccion: unBloqueAccion [
 
 	| tamanioLista scroll scrollContents point |
+	bloqueClaveLista := unBloqueClave.
+	bloqueAccionLista := unBloqueAccion.
 	"Obtenemos el tamaño"
 	tamanioLista := unaLista size.
 	"Creamos el panel de scroll"
@@ -74,28 +81,31 @@ SistemaVisual >> crearLista: unaLista bloqueClave: unBloqueClave bloqueAccion: u
 		borderWidth: 1;
 		borderColor: colorPrincipal;
 		color: Color transparent;
-		extent: 598 @ 400;
-		center: self center + (0 @ 50).
+		extent: 303 @ 400;
+		center: self rightCenter + (-150 @ 50).
 	self addMorph: scroll.
 	"Creamos el contenido del panel"
 	scrollContents := BorderedMorph new.
 	scrollContents
 		borderWidth: 0;
 		color: Color transparent;
-		extent: 500 @ (tamanioLista * 100 + 50).
+		extent: 280 @ (tamanioLista * 100 + 50).
 	"Hacemos que el scroll siga al contenido"
 	scroll scroller addMorph: scrollContents.
 	scroll scrollTarget: scrollContents.
 	"Listamos los elementos dentro del scroll"
+	ultimaPosicionLista := tamanioLista * 100 + 50.
 	1 to: tamanioLista do: [ :posVertical | 
 		| elementoActual |
 		elementoActual := unaLista at: posVertical.
-		point := scrollContents center x + 50 @ (posVertical * 100 - 50).
+		point := scrollContents center x + 10 @ (posVertical * 100 - 50).
 		scrollContents addMorph: (BotonAccion
 				 crear: (unBloqueClave value: elementoActual)
 				 color: colorPrincipal
 				 posicion: point
-				 yFuncion: [ unBloqueAccion value: elementoActual ]) ]
+				 yFuncion: [ unBloqueAccion value: elementoActual ]) ].
+	listaActual := scrollContents.
+	morphLista := scroll
 ]
 
 { #category : #aplicacion }
@@ -177,72 +187,12 @@ SistemaVisual >> initialize [
 ]
 
 { #category : #aplicacion }
-SistemaVisual >> menuAgregarBiblioteca [
-
-	| formId formNombre formDireccion formTelefono formRepresentante formDiasPrestamo |
-	self nuevaVentana: [ self menuBibliotecas ] nivel: 3.
-	"Título"
-	self crearTitulo: 'Añadir biblioteca'.
-	"Formulario id"
-	formId := self
-		          crearFormulario: 'ID'
-		          posicion: self center - (-150 @ 75).
-	self addMorph: formId.
-	"Formulario nombre"
-	formNombre := self
-		              crearFormulario: 'Nombre'
-		              posicion: self center - (150 @ 75).
-	self addMorph: formNombre.
-	"Formulario dirección"
-	formDireccion := self
-		                 crearFormulario: 'Dirección'
-		                 posicion: self center + (-150 @ 25).
-	self addMorph: formDireccion.
-	"Formulario telefono"
-	formTelefono := self
-		                crearFormulario: 'Teléfono'
-		                posicion: self center + (150 @ 25).
-	self addMorph: formTelefono.
-	"Formulario nombre representante"
-	formRepresentante := self
-		                     crearFormulario: 'Nombre representante'
-		                     posicion: self center + (-150 @ 125).
-	self addMorph: formRepresentante.
-	"Formulario días préstamo"
-	formDiasPrestamo := self
-		                    crearFormulario: 'Días por préstamo'
-		                    posicion: self center + (150 @ 125).
-	self addMorph: formDiasPrestamo.
-	"Botón crear"
-	self addMorph: (BotonAccion
-			 crear: 'Agregar'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 250)
-			 yFuncion: [ 
-				 (sistema agregarBiblioteca: (Biblioteca
-						   crearId: formId getText asString asInteger
-						   direccion: formDireccion getText asString
-						   nombre: formNombre getText asString
-						   telefono: formTelefono getText asString
-						   nombreRepresentante: formRepresentante getText asString
-						   duracionDiasPrestamo: formDiasPrestamo getText asString asInteger))
-					 ifTrue: [ 
-						 self
-							 ventanaNotificacion: '¡Biblioteca creada con éxito!'
-							 redirige: [ self menuAgregarBiblioteca ] ]
-					 ifFalse: [ 
-						 self
-							 ventanaNotificacion: 'ID para biblioteca está en uso'
-							 redirige: [ self menuAgregarBiblioteca ] ] ])
-]
-
-{ #category : #aplicacion }
 SistemaVisual >> menuAgregarBibliotecaFav: unUsuario [
 
 	| bibliotecas selector |
 	"Obtenemos las bibliotecas que aún no están como favoritas"
 	bibliotecas := sistema getBibliotecas.
-	self nuevaVentana: [ self menuOpcionesUsuario: unUsuario ] nivel: 5.
+	self nuevaVentana: [ self menuOpcionesUsuario: unUsuario ] nivel: 4.
 	"Título"
 	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Selector bibliotecas"
@@ -258,187 +208,93 @@ SistemaVisual >> menuAgregarBibliotecaFav: unUsuario [
 			 color: colorPrincipal
 			 posicion: self center + (0 @ 100)
 			 yFuncion: [ 
-						 | bibliotecaSeleccionada |
-						 bibliotecaSeleccionada := sistema getBibliotecas at:
-							                           selector listSelectionIndex.
-						 (unUsuario getBibliotecasFavoritas indexOf:
-							  bibliotecaSeleccionada) = 0
-							 ifFalse: [ 
-								 self
-									 ventanaNotificacion:
-									 '¡' , selector selectedItem
-									 , ' ya es una biblioteca favorita!'
-									 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ]
-							 ifTrue: [ 
-								 unUsuario agregarBibliotecaFav: bibliotecaSeleccionada.
-								 self
-									 ventanaNotificacion:
-									 'Biblioteca ' , selector selectedItem
-									 , ' agregada como favorita'
-									 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ] ])
-]
-
-{ #category : #aplicacion }
-SistemaVisual >> menuAgregarLibro: unaBiblioteca [
-
-	| formId formNombre formEditorial formAnioEdicion selectorTipo formAutores |
-	self
-		nuevaVentana: [ self menuOpcionesBiblioteca: unaBiblioteca ]
-		nivel: 5.
-	"Título"
-	self crearTitulo: 'Añadir libro'.
-	"Formulario id"
-	formId := self
-		          crearFormulario: 'ID'
-		          posicion: self center - (-150 @ 75).
-	self addMorph: formId.
-	"Formulario nombre"
-	formNombre := self
-		              crearFormulario: 'Nombre'
-		              posicion: self center - (150 @ 75).
-	self addMorph: formNombre.
-	"Formulario editorial"
-	formEditorial := self
-		                 crearFormulario: 'Editorial'
-		                 posicion: self center + (-150 @ 25).
-	self addMorph: formEditorial.
-	"Formulario año edición"
-	formAnioEdicion := self
-		                   crearFormulario: 'Año edición'
-		                   posicion: self center + (150 @ 25).
-	self addMorph: formAnioEdicion.
-	"Selector tipo"
-	selectorTipo := self
-		                crearSelector: 'Tipo'
-		                lista:
-		                (OrderedCollection withAll:
-			                 #( 'Físico' 'Digital' 'Audiolibro' ))
-		                posicion: self center + (-150 @ 125).
-	self addMorph: selectorTipo.
-	"Formulario autores"
-	formAutores := self
-		               crearFormulario: 'Autores'
-		               posicion: self center + (150 @ 125).
-	self addMorph: formAutores.
-	"Botón crear"
-	self addMorph: (BotonAccion
-			 crear: 'Agregar'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 250)
-			 yFuncion: [ 
-				 | agregado |
-				 agregado := selectorTipo selectedItem = 'Audiolibro'
-					             ifTrue: [ 
-						             unaBiblioteca agregarLibro: (Audiolibro
-								              crearId: formId getText asString asInteger
-								              nombre: formNombre getText asString
-								              editorial: formEditorial getText asString
-								              anioEdicion:
-								              formAnioEdicion getText asString asInteger
-								              tipo: selectorTipo selectedItem
-								              colAutores: formAutores getText asString) ]
-					             ifFalse: [ 
-						             unaBiblioteca agregarLibro: (Libro
-								              crearId: formId getText asString asInteger
-								              nombre: formNombre getText asString
-								              editorial: formEditorial getText asString
-								              anioEdicion:
-								              formAnioEdicion getText asString asInteger
-								              tipo: selectorTipo selectedItem
-								              colAutores: formAutores getText asString) ].
-				 agregado
-					 ifTrue: [ 
-						 self
-							 ventanaNotificacion: '¡Libro añadido con éxito!'
-							 redirige: [ self menuAgregarLibro: unaBiblioteca ] ]
+				 | bibliotecaSeleccionada |
+				 bibliotecaSeleccionada := sistema getBibliotecas at:
+					                           selector listSelectionIndex.
+				 (unUsuario getBibliotecasFavoritas indexOf:
+					  bibliotecaSeleccionada) = 0
 					 ifFalse: [ 
 						 self
-							 ventanaNotificacion: 'ID para libro está en uso'
-							 redirige: [ self menuAgregarLibro: unaBiblioteca ] ] ])
-]
-
-{ #category : #aplicacion }
-SistemaVisual >> menuAgregarUsuario [
-
-	| formDni formNombre formApellido formContrasenia |
-	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
-	"Título"
-	self crearTitulo: 'Añadir usuario'.
-	"Formulario apellido"
-	formApellido := self
-		                crearFormulario: 'Apellido'
-		                posicion: self center - (-150 @ 50).
-	self addMorph: formApellido.
-	"Formulario nombre"
-	formNombre := self
-		              crearFormulario: 'Nombre'
-		              posicion: self center - (150 @ 50).
-	self addMorph: formNombre.
-	"Formulario dni"
-	formDni := self
-		           crearFormulario: 'DNI'
-		           posicion: self center + (-150 @ 50).
-	self addMorph: formDni.
-	"Formulario contraseña"
-	formContrasenia := self
-		                   crearFormulario: 'Contraseña'
-		                   posicion: self center + (150 @ 50).
-	self addMorph: formContrasenia.
-	"Botón crear"
-	self addMorph: (BotonAccion
-			 crear: 'Agregar'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 200)
-			 yFuncion: [ 
-				 (sistema agregarUsuario: (Usuario
-						   crearDni: formDni getText asString asInteger
-						   nombre: formNombre getText asString
-						   apellido: formApellido getText asString
-						   contrasenia: formContrasenia getText asString))
+							 ventanaNotificacion:
+							 '¡' , selector selectedItem
+							 , ' ya es una biblioteca favorita!'
+							 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ]
 					 ifTrue: [ 
+						 unUsuario agregarBibliotecaFav: bibliotecaSeleccionada.
 						 self
-							 ventanaNotificacion: '¡Usuario creado con éxito!'
-							 redirige: [ self menuAgregarUsuario ] ]
-					 ifFalse: [ 
-						 self
-							 ventanaNotificacion: 'DNI para usuario está en uso'
-							 redirige: [ self menuAgregarUsuario ] ] ])
+							 ventanaNotificacion:
+							 'Biblioteca ' , selector selectedItem
+							 , ' agregada como favorita'
+							 redirige: [ self menuAgregarBibliotecaFav: unUsuario ] ] ])
 ]
 
 { #category : #aplicacion }
 SistemaVisual >> menuBibliotecas [
 
+	| formId formNombre formDireccion formTelefono formRepresentante formDiasPrestamo |
 	self nuevaVentana: [ self menuPrincipal ] nivel: 2.
+	"Se agrega el sistema como observer del modelo"
+	sistema addDependent: self.
 	"Título"
 	self crearTitulo: 'Bibliotecas'.
+	"Mostramos la lista de bibliotecas"
+	self
+		crearLista: sistema getBibliotecas
+		bloqueClave: [ :biblioteca | biblioteca getNombre ]
+		bloqueAccion: [ :biblioteca | self menuInfoBiblioteca: biblioteca ].
+	"Formulario id"
+	formId := self
+		          crearFormulario: 'ID'
+		          posicion: self center - (150 @ 130).
+	self addMorph: formId.
+	"Formulario nombre"
+	formNombre := self
+		              crearFormulario: 'Nombre'
+		              posicion: self center - (150 @ 70).
+	self addMorph: formNombre.
+	"Formulario dirección"
+	formDireccion := self
+		                 crearFormulario: 'Dirección'
+		                 posicion: self center + (-150 @ 50).
+	self addMorph: formDireccion.
+	"Formulario telefono"
+	formTelefono := self
+		                crearFormulario: 'Teléfono'
+		                posicion: self center - (150 @ 10).
+	self addMorph: formTelefono.
+	"Formulario nombre representante"
+	formRepresentante := self
+		                     crearFormulario: 'Nombre representante'
+		                     posicion: self center + (-150 @ 170).
+	self addMorph: formRepresentante.
+	"Formulario días préstamo"
+	formDiasPrestamo := self
+		                    crearFormulario: 'Días por préstamo'
+		                    posicion: self center + (-150 @ 110).
+	self addMorph: formDiasPrestamo.
 	"Botón crear"
 	self addMorph: (BotonAccion
-			 crear: 'Agregar biblioteca'
+			 crear: 'Agregar'
 			 color: colorPrincipal
-			 posicion: self center - (0 @ 25)
-			 yFuncion: [ self menuAgregarBiblioteca ]).
-	"Botón buscar"
-	self addMorph: (BotonAccion
-			 crear: 'Buscar biblioteca'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 100)
-			 yFuncion: [ self menuBuscarBiblioteca ])
-]
-
-{ #category : #aplicacion }
-SistemaVisual >> menuBuscarBiblioteca [
-
-	self nuevaVentana: [ self menuBibliotecas ] nivel: 3.
-	"Título"
-	self crearTitulo: 'Buscar biblioteca'.
-	"Mostramos la lista de bibliotecas"
-	self crearLista: sistema getBibliotecas bloqueClave: [ :biblioteca | biblioteca getNombre ] bloqueAccion: [ :biblioteca | self menuInfoBiblioteca: biblioteca ]
+			 posicion: self center + (-150 @ 250)
+			 yFuncion: [ 
+				 (sistema agregarBiblioteca: (Biblioteca
+						   crearId: formId getText asString asInteger
+						   direccion: formDireccion getText asString
+						   nombre: formNombre getText asString
+						   telefono: formTelefono getText asString
+						   nombreRepresentante: formRepresentante getText asString
+						   duracionDiasPrestamo:
+						   formDiasPrestamo getText asString asInteger)) ifFalse: [ 
+					 self
+						 ventanaNotificacion: 'ID para biblioteca está en uso'
+						 redirige: [ self menuBibliotecas ] ] ])
 ]
 
 { #category : #aplicacion }
 SistemaVisual >> menuBuscarPrestamo: unaListaPrestamos bloqueClave: bloqueClave menuAnterior: unMenuAnterior [
 
-	self nuevaVentana: unMenuAnterior nivel: 5.
+	self nuevaVentana: unMenuAnterior nivel: 4.
 	"Título"
 	self crearTitulo: 'Préstamos activos'.
 	"Listamos préstamos"
@@ -456,7 +312,7 @@ SistemaVisual >> menuBuscarPrestamo: unaListaPrestamos bloqueClave: bloqueClave 
 { #category : #aplicacion }
 SistemaVisual >> menuBuscarPrestamoUsuario: unaListaPrestamos usuario: unUsuario bloqueClave: bloqueClave menuAnterior: unMenuAnterior [
 
-	self nuevaVentana: unMenuAnterior nivel: 5.
+	self nuevaVentana: unMenuAnterior nivel: 4.
 	"Título"
 	self crearTitulo: 'Préstamos activos'.
 	"Listamos préstamos"
@@ -466,30 +322,17 @@ SistemaVisual >> menuBuscarPrestamoUsuario: unaListaPrestamos usuario: unUsuario
 		bloqueAccion: [ :prestamo | 
 			self menuInfoPrestamo: prestamo ventanaListaAnterior: [ 
 				self
-					menuBuscarPrestamoUsuario: (sistema getPrestamosUsuario: unUsuario)
+					menuBuscarPrestamoUsuario:
+					(sistema getPrestamosUsuario: unUsuario)
 					usuario: unUsuario
 					bloqueClave: bloqueClave
 					menuAnterior: unMenuAnterior ] ]
 ]
 
 { #category : #aplicacion }
-SistemaVisual >> menuBuscarUsuario [
-
-	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
-	"Título"
-	self crearTitulo: 'Buscar usuario'.
-	"Mostramos la lista de usuarios"
-	self
-		crearLista: sistema getUsuarios
-		bloqueClave: [ :usuario | 
-		usuario getNombre , ' ' , usuario getApellido ]
-		bloqueAccion: [ :usuario | self menuConfirmarUsuario: usuario ]
-]
-
-{ #category : #aplicacion }
 SistemaVisual >> menuCambioPlanUsuario: unUsuario [
 
-	self nuevaVentana: [ self menuOpcionesUsuario: unUsuario ] nivel: 5.
+	self nuevaVentana: [ self menuOpcionesUsuario: unUsuario ] nivel: 4.
 	"Según el tipo de usuario debemos hacer un cambio o el otro"
 	unUsuario getTipo = 'Plus'
 		ifTrue: [ 
@@ -540,7 +383,7 @@ SistemaVisual >> menuCambioPlanUsuario: unUsuario [
 SistemaVisual >> menuConfirmarUsuario: unUsuario [
 
 	| formContrasenia |
-	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
+	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
 	"Título"
 	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Pedimos la contraseña"
@@ -570,10 +413,9 @@ SistemaVisual >> menuConfirmarUsuario: unUsuario [
 { #category : #aplicacion }
 SistemaVisual >> menuInfoBiblioteca: unaBiblioteca [
 
-	self nuevaVentana: [ self menuBuscarBiblioteca ] nivel: 4.
+	self nuevaVentana: [ self menuBibliotecas ] nivel: 3.
 	"Título"
-	self
-		crearTitulo: '"' , unaBiblioteca getNombre , '"'.
+	self crearTitulo: '"' , unaBiblioteca getNombre , '"'.
 	"Datos"
 	self
 		crearTexto: 'Id: ' , unaBiblioteca getId asString
@@ -603,7 +445,7 @@ SistemaVisual >> menuInfoBiblioteca: unaBiblioteca [
 { #category : #aplicacion }
 SistemaVisual >> menuInfoLibro: unLibro biblioteca: unaBiblioteca [
 
-	self nuevaVentana: [ self menuListaLibros: unaBiblioteca ] nivel: 6.
+	self nuevaVentana: [ self menuListaLibros: unaBiblioteca ] nivel: 5.
 	"Título"
 	self crearTitulo: '"' , unLibro getNombre , '"'.
 	"Datos"
@@ -650,7 +492,7 @@ SistemaVisual >> menuInfoLibro: unLibro biblioteca: unaBiblioteca [
 { #category : #aplicacion }
 SistemaVisual >> menuInfoPrestamo: unPrestamo ventanaListaAnterior: unaVentana [
 
-	self nuevaVentana: unaVentana nivel: 6.
+	self nuevaVentana: unaVentana nivel: 5.
 	"Título"
 	self crearTitulo: 'Préstamo'.
 	"Datos"
@@ -678,15 +520,21 @@ SistemaVisual >> menuInfoPrestamo: unPrestamo ventanaListaAnterior: unaVentana [
 				 self
 					 ventanaConfirmacion: '¿Devolver préstamo?'
 					 bloqueConfirma: [ 
-					 unPrestamo getBiblioteca devolverPrestamo: unPrestamo getUsuario.
-					self ventanaNotificacion: '¡Préstamo devuelto!' redirige: unaVentana ]
-					 redirige: [ self menuInfoPrestamo: unPrestamo ventanaListaAnterior: unaVentana ] ])
+						 unPrestamo getBiblioteca devolverPrestamo:
+							 unPrestamo getUsuario.
+						 self
+							 ventanaNotificacion: '¡Préstamo devuelto!'
+							 redirige: unaVentana ]
+					 redirige: [ 
+					 self
+						 menuInfoPrestamo: unPrestamo
+						 ventanaListaAnterior: unaVentana ] ])
 ]
 
 { #category : #aplicacion }
 SistemaVisual >> menuInfoUsuario: unUsuario [
 
-	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
+	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
 	"Título"
 	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Datos"
@@ -729,7 +577,7 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 	librosSeleccionados := OrderedCollection new.
 	self
 		nuevaVentana: [ self menuNuevoPrestamoUsuario: unUsuario ]
-		nivel: 5.
+		nivel: 4.
 	"Título"
 	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Ver seleccionados"
@@ -815,7 +663,8 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 									 redirige: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]
 							 ifFalse: [ 
 								 self
-									 ventanaNotificacion: 'Debe ser Plus para seleccionar Audiolibros'
+									 ventanaNotificacion:
+									 'Debe ser Plus para seleccionar Audiolibros'
 									 redirige: [ 
 									 self
 										 menuLibrosPrestamoUsuario: unUsuario
@@ -825,9 +674,12 @@ SistemaVisual >> menuLibrosPrestamoUsuario: unUsuario biblioteca: unaBiblioteca 
 { #category : #aplicacion }
 SistemaVisual >> menuListaLibros: unaBiblioteca [
 
+	| formId formNombre formEditorial formAnioEdicion selectorTipo formAutores |
 	self
 		nuevaVentana: [ self menuOpcionesBiblioteca: unaBiblioteca ]
-		nivel: 5.
+		nivel: 4.
+	"Se agrega el sistema como observer del modelo"
+	unaBiblioteca  addDependent: self.
 	"Título"
 	self crearTitulo: 'Libros de "' , unaBiblioteca getNombre , '"'.
 	"Listamos libros"
@@ -835,7 +687,70 @@ SistemaVisual >> menuListaLibros: unaBiblioteca [
 		crearLista: unaBiblioteca getLibros
 		bloqueClave: [ :libro | libro getNombre ]
 		bloqueAccion: [ :libro | 
-		self menuInfoLibro: libro biblioteca: unaBiblioteca ]
+		self menuInfoLibro: libro biblioteca: unaBiblioteca ].
+	"Formulario id"
+	formId := self
+		          crearFormulario: 'ID'
+		          posicion: self center - (150 @ 130).
+	self addMorph: formId.
+	"Formulario nombre"
+	formNombre := self
+		              crearFormulario: 'Nombre'
+		              posicion: self center - (150 @ 70).
+	self addMorph: formNombre.
+	"Formulario editorial"
+	formEditorial := self
+		                 crearFormulario: 'Editorial'
+		                 posicion: self center + (-150 @ 50).
+	self addMorph: formEditorial.
+	"Formulario año edición"
+	formAnioEdicion := self
+		                   crearFormulario: 'Año edición'
+		                   posicion: self center - (150 @ 10).
+	self addMorph: formAnioEdicion.
+	"Selector tipo"
+	selectorTipo := self
+		                crearSelector: 'Tipo'
+		                lista:
+		                (OrderedCollection withAll:
+			                 #( 'Físico' 'Digital' 'Audiolibro' ))
+		                posicion: self center + (-150 @ 170).
+	self addMorph: selectorTipo.
+	"Formulario autores"
+	formAutores := self
+		               crearFormulario: 'Autores'
+		               posicion: self center + (-150 @ 110).
+	self addMorph: formAutores.
+	"Botón crear"
+	self addMorph: (BotonAccion
+			 crear: 'Agregar'
+			 color: colorPrincipal
+			 posicion: self center + (-150 @ 250)
+			 yFuncion: [ 
+				 | agregado |
+				 agregado := selectorTipo selectedItem = 'Audiolibro'
+					             ifTrue: [ 
+						             unaBiblioteca agregarLibro: (Audiolibro
+								              crearId: formId getText asString asInteger
+								              nombre: formNombre getText asString
+								              editorial: formEditorial getText asString
+								              anioEdicion:
+								              formAnioEdicion getText asString asInteger
+								              tipo: selectorTipo selectedItem
+								              colAutores: formAutores getText asString) ]
+					             ifFalse: [ 
+						             unaBiblioteca agregarLibro: (Libro
+								              crearId: formId getText asString asInteger
+								              nombre: formNombre getText asString
+								              editorial: formEditorial getText asString
+								              anioEdicion:
+								              formAnioEdicion getText asString asInteger
+								              tipo: selectorTipo selectedItem
+								              colAutores: formAutores getText asString) ].
+				 agregado ifFalse: [ 
+					 self
+						 ventanaNotificacion: 'ID para libro está en uso'
+						 redirige: [ self menuListaLibros: unaBiblioteca ] ] ])
 ]
 
 { #category : #aplicacion }
@@ -846,7 +761,7 @@ SistemaVisual >> menuNuevoPrestamoUsuario: unUsuario [
 	bibliotecasFav := unUsuario getBibliotecasFavoritas.
 	self
 		nuevaVentana: [ self menuOpcionesPrestamoUsuario: unUsuario ]
-		nivel: 5.
+		nivel: 4.
 	"Título"
 	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Selector bibliotecas"
@@ -866,7 +781,11 @@ SistemaVisual >> menuNuevoPrestamoUsuario: unUsuario [
 				 bibliotecaSeleccionada := bibliotecasFav at:
 					                           selector listSelectionIndex.
 				 (bibliotecaSeleccionada tienePrestamoActivo: unUsuario)
-					 ifTrue: [ self ventanaNotificacion: 'Ya tiene un préstamo en ', bibliotecaSeleccionada getNombre redirige: [ self menuNuevoPrestamoUsuario: unUsuario ] ]
+					 ifTrue: [ 
+						 self
+							 ventanaNotificacion:
+							 'Ya tiene un préstamo en ' , bibliotecaSeleccionada getNombre
+							 redirige: [ self menuNuevoPrestamoUsuario: unUsuario ] ]
 					 ifFalse: [ 
 						 self
 							 menuLibrosPrestamoUsuario: unUsuario
@@ -876,16 +795,9 @@ SistemaVisual >> menuNuevoPrestamoUsuario: unUsuario [
 { #category : #aplicacion }
 SistemaVisual >> menuOpcionesBiblioteca: unaBiblioteca [
 
-	self nuevaVentana: [ self menuBuscarBiblioteca ] nivel: 4.
+	self nuevaVentana: [ self menuBibliotecas ] nivel: 3.
 	"Título"
-	self
-		crearTitulo: '"' , unaBiblioteca getNombre , '"'.
-	"Botón agregar material"
-	self addMorph: (BotonAccion
-			 crear: 'Agregar libro'
-			 color: colorPrincipal
-			 posicion: self center - (0 @ 100)
-			 yFuncion: [ self menuAgregarLibro: unaBiblioteca ]).
+	self crearTitulo: '"' , unaBiblioteca getNombre , '"'.
 	"Botón quitar material"
 	self addMorph: (BotonAccion
 			 crear: 'Ver libros'
@@ -915,7 +827,7 @@ SistemaVisual >> menuOpcionesBiblioteca: unaBiblioteca [
 { #category : #aplicacion }
 SistemaVisual >> menuOpcionesPrestamoUsuario: unUsuario [
 
-	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
+	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
 	"Título"
 	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Botón cambiar plan"
@@ -938,7 +850,8 @@ SistemaVisual >> menuOpcionesPrestamoUsuario: unUsuario [
 			 posicion: self center
 			 yFuncion: [ 
 				 self
-					 menuBuscarPrestamoUsuario: (sistema getPrestamosUsuario: unUsuario)
+					 menuBuscarPrestamoUsuario:
+					 (sistema getPrestamosUsuario: unUsuario)
 					 usuario: unUsuario
 					 bloqueClave: [ :prestamo | prestamo getBiblioteca getNombre ]
 					 menuAnterior: [ self menuOpcionesPrestamoUsuario: unUsuario ] ]).
@@ -959,7 +872,7 @@ SistemaVisual >> menuOpcionesPrestamoUsuario: unUsuario [
 { #category : #aplicacion }
 SistemaVisual >> menuOpcionesUsuario: unUsuario [
 
-	self nuevaVentana: [ self menuBuscarUsuario ] nivel: 4.
+	self nuevaVentana: [ self menuUsuarios ] nivel: 3.
 	"Título"
 	self crearTitulo: unUsuario getNombre , ' ' , unUsuario getApellido.
 	"Botón cambiar plan"
@@ -1017,21 +930,53 @@ SistemaVisual >> menuPrincipal [
 { #category : #aplicacion }
 SistemaVisual >> menuUsuarios [
 
+	| lista formDni formNombre formApellido formContrasenia |
 	self nuevaVentana: [ self menuPrincipal ] nivel: 2.
+	"Se agrega el sistema como observer del modelo"
+	sistema addDependent: self.
 	"Título"
 	self crearTitulo: 'Usuarios'.
+	"Mostramos la lista de usuarios"
+	lista := self
+		         crearLista: sistema getUsuarios
+		         bloqueClave: [ :usuario | 
+		         usuario getNombre , ' ' , usuario getApellido ]
+		         bloqueAccion: [ :usuario | 
+		         self menuConfirmarUsuario: usuario ].
+	"Formulario apellido"
+	formApellido := self
+		                crearFormulario: 'Apellido'
+		                posicion: self center - (150 @ 35).
+	self addMorph: formApellido.
+	"Formulario nombre"
+	formNombre := self
+		              crearFormulario: 'Nombre'
+		              posicion: self center - (150 @ 105).
+	self addMorph: formNombre.
+	"Formulario dni"
+	formDni := self
+		           crearFormulario: 'DNI'
+		           posicion: self center - (150 @ -35).
+	self addMorph: formDni.
+	"Formulario contraseña"
+	formContrasenia := self
+		                   crearFormulario: 'Contraseña'
+		                   posicion: self center - (150 @ -105).
+	self addMorph: formContrasenia.
 	"Botón crear"
 	self addMorph: (BotonAccion
-			 crear: 'Agregar usuario'
+			 crear: 'Agregar'
 			 color: colorPrincipal
-			 posicion: self center - (0 @ 25)
-			 yFuncion: [ self menuAgregarUsuario ]).
-	"Botón buscar"
-	self addMorph: (BotonAccion
-			 crear: 'Buscar usuario'
-			 color: colorPrincipal
-			 posicion: self center + (0 @ 100)
-			 yFuncion: [ self menuBuscarUsuario  ])
+			 posicion: self center + (-150 @ 200)
+			 yFuncion: [ 
+				 (sistema agregarUsuario: (Usuario
+						   crearDni: formDni getText asString asInteger
+						   nombre: formNombre getText asString
+						   apellido: formApellido getText asString
+						   contrasenia: formContrasenia getText asString)) ifFalse: [ 
+					 self
+						 ventanaNotificacion: 'DNI para usuario está en uso'
+						 redirige: [ self menuUsuarios ] ] ])
 ]
 
 { #category : #aplicacion }
@@ -1062,6 +1007,20 @@ SistemaVisual >> nuevaVentana: ventanaAnterior nivel: unNivel [
 			 emphasis: TextEmphasis bold emphasisCode;
 			 color: colorPrincipal;
 			 center: self topCenter + (0 @ 25))
+]
+
+{ #category : #updating }
+SistemaVisual >> update: nuevoElemento [
+
+	listaActual extent:
+		listaActual bottomRight x @ (listaActual bottomRight y + 100).
+	listaActual addMorph: (BotonAccion
+			 crear: (bloqueClaveLista value: nuevoElemento)
+			 color: colorPrincipal
+			 posicion: listaActual center x + 10 @ ultimaPosicionLista
+			 yFuncion: [ bloqueAccionLista value: nuevoElemento ]).
+	ultimaPosicionLista := ultimaPosicionLista + 100.
+	morphLista hResizeScrollbar
 ]
 
 { #category : #aplicacion }

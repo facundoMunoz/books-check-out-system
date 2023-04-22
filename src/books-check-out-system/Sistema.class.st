@@ -24,10 +24,13 @@ Sistema >> agregarBiblioteca: unaBiblioteca [
 
 	| agregado |
 	agregado := false.
-	colBibliotecas detect: [ :biblioteca | 
-		                 unaBiblioteca correspondeId: biblioteca getId ] ifNone: [ 
-		agregado := true.
-		colBibliotecas add: unaBiblioteca ].
+	colBibliotecas
+		detect: [ :biblioteca | 
+		unaBiblioteca correspondeId: biblioteca getId ]
+		ifNone: [ 
+			agregado := true.
+			colBibliotecas add: unaBiblioteca.
+			self changed: unaBiblioteca  ].
 	^ agregado
 ]
 
@@ -42,7 +45,8 @@ Sistema >> agregarUsuario: unUsuario [
 		detect: [ :usuario | unUsuario correspondeDni: usuario getDni ]
 		ifNone: [ 
 			agregado := true.
-			colUsuarios add: unUsuario ].
+			colUsuarios add: unUsuario.
+			self changed: unUsuario  ].
 	^ agregado
 ]
 

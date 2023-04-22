@@ -58,12 +58,12 @@ Biblioteca >> agregarLibro: unLibro [
 
 	| agregado |
 	agregado := false.
-	colLibros 
-		detect: [ :libro | 
-		unLibro correspondeId: libro getId ]
+	colLibros
+		detect: [ :libro | unLibro correspondeId: libro getId ]
 		ifNone: [ 
 			agregado := true.
-			colLibros add: unLibro ].
+			colLibros add: unLibro.
+			self changed: unLibro  ].
 	^ agregado
 ]
 
