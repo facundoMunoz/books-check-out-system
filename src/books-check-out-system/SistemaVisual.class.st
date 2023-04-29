@@ -302,11 +302,8 @@ SistemaVisual >> menuBuscarPrestamo: unaListaPrestamos bloqueClave: bloqueClave 
 		crearLista: unaListaPrestamos
 		bloqueClave: bloqueClave
 		bloqueAccion: [ :prestamo | 
-			self menuInfoPrestamo: prestamo ventanaListaAnterior: [ 
-				self
-					menuBuscarPrestamo: unaListaPrestamos
-					bloqueClave: bloqueClave
-					menuAnterior: unMenuAnterior ] ]
+			self menuBuscarPrestamo: unaListaPrestamos bloqueClave: bloqueClave menuAnterior: unMenuAnterior.
+			self menuInfoPrestamo: prestamo ventanaAnterior: [ self menuBuscarPrestamo: unaListaPrestamos bloqueClave: bloqueClave menuAnterior: unMenuAnterior ] ]
 ]
 
 { #category : #aplicacion }
@@ -320,13 +317,17 @@ SistemaVisual >> menuBuscarPrestamoUsuario: unaListaPrestamos usuario: unUsuario
 		crearLista: unaListaPrestamos
 		bloqueClave: bloqueClave
 		bloqueAccion: [ :prestamo | 
-			self menuInfoPrestamo: prestamo ventanaListaAnterior: [ 
-				self
-					menuBuscarPrestamoUsuario:
-					(sistema getPrestamosUsuario: unUsuario)
-					usuario: unUsuario
-					bloqueClave: bloqueClave
-					menuAnterior: unMenuAnterior ] ]
+			self
+				menuBuscarPrestamoUsuario: unaListaPrestamos
+				usuario: unUsuario
+				bloqueClave: bloqueClave
+				menuAnterior: unMenuAnterior.
+			self menuInfoPrestamo: prestamo ventanaAnterior: [self
+					 menuBuscarPrestamoUsuario:
+					 (sistema getPrestamosUsuario: unUsuario)
+					 usuario: unUsuario
+					 bloqueClave: bloqueClave
+					 menuAnterior: unMenuAnterior] ]
 ]
 
 { #category : #aplicacion }
@@ -490,32 +491,30 @@ SistemaVisual >> menuInfoLibro: unLibro biblioteca: unaBiblioteca [
 ]
 
 { #category : #aplicacion }
-SistemaVisual >> menuInfoPrestamo: unPrestamo ventanaListaAnterior: unaVentana [
+SistemaVisual >> menuInfoPrestamo: unPrestamo ventanaAnterior: unaVentana [
 
-	self nuevaVentana: unaVentana nivel: 5.
-	"Título"
-	self crearTitulo: 'Préstamo'.
 	"Datos"
+
 	self
 		crearTexto: 'Usuario: ' , unPrestamo getUsuario getNombre , ' '
 			, unPrestamo getUsuario getApellido
-		posicion: self center - (0 @ 75).
+		posicion: self center - (150 @ 75).
 	self
 		crearTexto: 'Biblioteca: ' , unPrestamo getBiblioteca getNombre
-		posicion: self center - (0 @ 25).
+		posicion: self center - (150 @ 25).
 	self
 		crearTexto: 'Fecha realizado: ' , unPrestamo getFechaInicio asString
-		posicion: self center + (0 @ 25).
+		posicion: self center + (-150 @ 25).
 	self addMorph: (self
 			 crearSelector: 'Libros'
 			 lista:
 			 (unPrestamo getLibros collect: [ :libro | libro getNombre ])
-			 posicion: self center + (0 @ 90)).
+			 posicion: self center + (-150 @ 90)).
 	"Botón devolver"
 	self addMorph: (BotonAccion
 			 crear: 'Devolver préstamo'
 			 color: colorPrincipal
-			 posicion: self center + (0 @ 200)
+			 posicion: self center + (-150 @ 200)
 			 yFuncion: [ 
 				 self
 					 ventanaConfirmacion: '¿Devolver préstamo?'
@@ -525,10 +524,7 @@ SistemaVisual >> menuInfoPrestamo: unPrestamo ventanaListaAnterior: unaVentana [
 						 self
 							 ventanaNotificacion: '¡Préstamo devuelto!'
 							 redirige: unaVentana ]
-					 redirige: [ 
-					 self
-						 menuInfoPrestamo: unPrestamo
-						 ventanaListaAnterior: unaVentana ] ])
+					 redirige: unaVentana ])
 ]
 
 { #category : #aplicacion }
