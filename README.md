@@ -3,7 +3,7 @@
 
 # Books Check Out System
 
-Pharo Smalltalk based desktop app to manage libraries, users and books check out following [this assignment](https://drive.google.com/file/d/1CNY19oGeFIWrILSWgABQOcizOUSftZJJ/view?usp=sharing)
+Pharo Smalltalk (10.0) based desktop app to manage libraries, users and books check out following [this assignment](https://drive.google.com/file/d/1CNY19oGeFIWrILSWgABQOcizOUSftZJJ/view?usp=sharing)
 
 [![Licence][license-shield]](./LICENSE)
 
